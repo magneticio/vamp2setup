@@ -12,11 +12,12 @@ This Guide will help you set up Vamp2 on a kubernetes cluster.
 git clone this repo or download [link]
 
 ```console
-git clone command
+$ git clone https://github.com/magneticio/vamp2setup.git
 ```
 or
 ```console
-wget commmand
+$ wget https://github.com/magneticio/vamp2setup/releases/download/pre0.0.1/setup.zip
+$ unzip setup.zip
 ```
 
 Run:
