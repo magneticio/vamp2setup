@@ -123,7 +123,7 @@ kubectl create -f namespace.yaml
 
 The new Virtual Cluster will be shown in the corresponding panel on the UI.
 
-![picture](images/screen1.png)
+![](images/screen1.png)
 
 
 Once Vamp is running and you have a virtual cluster set up you should make sure that the Deployments for your Application are deployed and running.
