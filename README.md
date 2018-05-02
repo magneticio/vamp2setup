@@ -1,11 +1,12 @@
-# vamp2setup
-Vamp2 Setup Guide
+# Vamp Setup
 
-This Guide will help you set up Vamp2 on a kubernetes cluster.
+This Guide will help you set up Vamp on a kubernetes cluster.
 
 # Prerequisites 
-* An existing kubernetes cluster with Kubernetes version 1.9 or above installed.
-* Kubectl is should be installed on the local computer with authorised to use the cluster.
+* An existing kubernetes cluster with Kubernetes version 1.9 or above installed. 
+* The current version has been tested only on Google Cloud, so it's recommended that you use that as well, in order to avoid issues.
+* Kubectl should be installed on the local computer with authorizations to access the cluster.
+** Keep in mind that this is an Alpha release targeted at developers and dev/ops. Many of the features are currently limited and will likely change and improve in future versions. **
 
 # installation steps
 
@@ -51,8 +52,6 @@ The default username is root.
 ## Istio Setup
 
 Once installed, Vamp will automatically check for Istio on the default cluster.
-**Mind the fact that Vamp and Istio expect to be deployed on Kubernetes 1.9 or higher. 
-Also the current version has been tested only on Google Cloud, so it's recommended that you use that as well to run this tutorial**
 Vamp expects to find the following resources inside the istio-system namesapce:
 
 **Deployments:**
