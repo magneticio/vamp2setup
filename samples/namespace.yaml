@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    project: default
+    cluster: default
+    istio-injection: enabled
+    vamp-managed: "true"
+  name: vamp-tutorial

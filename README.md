@@ -101,7 +101,7 @@ These labels are:
 - project: the name of the cluster to which the Virtual Cluster belongs. This label will be addedd if it is missing.
 
 Provided the first two labels are set, upon being deployed, Vamp will import all resources into the current Project and Cluster and add the two missing labels to the namespace.
-For this example you can just use the following yaml
+For this example you can just use the following yaml (also available in the samples folder)
 
 ````
 apiVersion: v1
@@ -125,10 +125,22 @@ The new Virtual Cluster will be shown in the corresponding panel on the UI.
 
 ![](images/screen1.png)
 
+From here you can edit the metadata of this Virtual Cluster. 
+For example you can associate a Slack webhook to it by adding a key **slack_webhook** with the correct value and a key **slack_channel** with the name of an existing channel.
+This will allow vamp to send notifications to that Slack channel.
 
-Once Vamp is running and you have a virtual cluster set up you should make sure that the Deployments for your Application are deployed and running.
-If you don't have an Application yet you can just use the following yaml to create any number of Deployments.
-You just have to copy it into a file and adjust the version labels and selectors and the deployment name.
+![](images/screen2.png)
+
+
+Once the Virtual Cluster is set up, you should make sure that the Deployments for your Application are created and running.
+All deployments require a set of three labels:
+
+- app: identifying the application to which the deployment belongs.
+- deployment: identifying the deployment itself. It is mainly used as a selector for the pods.
+- version: the version of the application to which the deployment belongs. This is used by Istio to dispatch traffic.
+
+For this example you will simply create two new deployments with the same app label and different deployment and version lables.
+To do that simply copy the yaml below it into a file, or get it from the sample folder.
 Then you can simply execute:
 
 ````
@@ -140,22 +152,22 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   labels:
-    app: application
+    app: vamp-tutorial-app
     version: version1
-  name: deployment1
+  name: vamp-tutorial-deployment1
   namespace: vamp-tutorial
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: application
-      deployment: deployment1
+      app: vamp-tutorial-app
+      deployment: vamp-tutorial-deployment1
       version: version1
   template:
     metadata:
       labels:
-        app: application
-        deployment: deployment1
+        app: vamp-tutorial-app
+        deployment: vamp-tutorial-deployment1
         version: version1
     spec:
       containers:
@@ -185,33 +197,27 @@ spec:
           periodSeconds: 10
           successThreshold: 1
           timeoutSeconds: 20
-````
-
-The version label is used by Istio to redirect requests to the corret Deployment in your Application. 
-For that reason you should always pay extra care in setting them so that every deployment has a different version.
-For our example we need a minimum of two Deployments in the same Application, so we will submit another yaml, similar to the previous one
-
-````
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   labels:
-    app: application
+    app: vamp-tutorial-app
     version: version1
-  name: deployment2
+  name: vamp-tutorial-deployment2
   namespace: vamp-tutorial
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: application
-      deployment: deployment2
+      app: vamp-tutorial-app
+      deployment: vamp-tutorial-deployment2
       version: version2
   template:
     metadata:
       labels:
-        app: application
-        deployment: deployment2
+        app: vamp-tutorial-app
+        deployment: vamp-tutorial-deployment2
         version: version2
     spec:
       containers:
@@ -243,159 +249,123 @@ spec:
           timeoutSeconds: 20
 ````
 
-Assuming you set up everything correctly the deployments will be imported into Vamp and you will be able to check their status, either from the UI or by calling the appropriate endpoint.
-You can find below an example of a curl call to retrieve said status:
+Assuming you set up everything correctly the deployments will be imported into Vamp and you will be able to check their statuses.
+From the UI you can simply select Application - List Application from the bar on the left and you will be presented with the list of available applications.
 
-````
-curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer your-token"  http://111.122.133.144/1.0/api/deployments?project_name=project&cluster_name=cluster&virtual_cluster_name=vamp-tutorial&application_name=application&deployment_name=deployment1
-````
+![](images/screen4.png)
 
-Mind the fact that, in order to query the API, you will have to provide a valid token and the correct project, cluster and virtual cluster names, which might differ from the provided example.
-You can also get a list of deloyments in the application with the following call
+By selecting the only available application that we just created you will get the list of deployments included in it.
 
-````
-curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer your-token"  http://111.122.133.144/1.0/api/deployments/list?project_name=project&cluster_name=cluster&virtual_cluster_name=vamp-tutorial&application_name=application
-````
+![](images/screen5.png)
 
-And the application itself with
 
-````
-curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer your-token"  http://111.122.133.144/1.0/api/applications?project_name=project&cluster_name=cluster&virtual_cluster_name=vamp-tutorial&application_name=application
-````
-
-Finally you can check the deployments also through kubectl by executing
+You can esaily double the information presented through kubectl by executing
 
 ````
 kubectl get deploy -n=vamp-tutorial
 ````
 
+
 ### Exposing your application
 
 Now that you have your Application running and two Deployments for it you can create a Service and an Ingress to expose them.
-Again you can simply use the UI to achieve both tasks or rely on the API.
-In the second case you can just send a POST request to following url
+Again you can simply use the UI to achieve both tasks.
+Simply select Service - Create Service from the bar on the left and fill the form that is shown with the data presented below.
+
+![](images/screen6.png)
+
+Then submit.
+This will create a new service name vamp-tutorial-service that will be accessible internally to the cluster.
+You can check the status of this service through the ui by selecting Service - List Service
+
+![](images/screen7.png)
+
+From here you can edit and delete the service or simply check its details, which is what we are going to do now.
+
+![](images/screen8.png)
+
+As you can see the service has been created with the configuration provided.
+You can doublecheck it with kubectl by running the following command
 
 ````
-http://localhost:8888/1.0/api/services?project_name=project&cluster_name=cluster&virtual_cluster_name=vamp-tutorial&application_name=application&service_name=tutorial-service
-````
-
-providing of course a valid token and the following json body
-
-````
-{
-  "ports" : [
-    {
-      "name":"http",
-      "port": 9090,
-      "targetPort": 9090,
-      "protocol": "TCP"
-    }
-  ],
-  "metadata": {
-    "additionalProp1": 0,
-    "additionalProp2": 0,
-    "additionalProp3": 0
-  },
-  "labels" : {
-    "test" : "test1"
-  }
-}
-````
-
-Once the Service has been created it will be accessible internally.
-As usua you can check the service statu through the UI or through the API performing the following call
-
-````
-curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer your-token"  http://localhost:8888/1.0/api/services?project_name=project&cluster_name=cluster&virtual_cluster_name=vamp-tutorial&application_name=application&service_name=tutorial-service
-````
-
-Alternatively you can check it using kubectl with
-
-````
-kubectl get svc tutorial-service -n-vamp-tutorial
+kubectl get svc vamp-tutorial-service -n-vamp-tutorial
 ````
 
 It's now time to expose the Service externally by creating an Ingress.
-You can achieve that by sending a POST request to the url 
+As you can probably imagine by now, you can achieve that by selecting Ingress - Create Ingress from the bar on the left and filling the form with the values shown below.
+
+![](images/screen9.png)
+
+Then hit submit.
+By accessing Ingress - Ingress List you will be able to check the new Ingress and also retrieve its IP.
+
+![](images/screen10.png)
+
+The same can be achieved through kubectl by running
 
 ````
-http://localhost:8888/1.0/api/ingresses?project_name=project&cluster_name=cluster&virtual_cluster_name=vamp-tutorial&application_name=application&ingress_name=tutorial-ingress
+kubectl get ing vamp-tutorial-ingress -n-vamp-tutorial
 ````
 
-with a valid token and the following body
-
-````
-{
-  "paths": [
-    {
-      "path": "/.*",
-      "port": 9090,
-      "serviceName": "demo-service"
-    }
-  ],
-  "metadata": {
-    "meta1": "test1"
-  }
-}
-````
-
-When this step is done you should check the status of the Ingress, waiting for it to be assigned an ip.
-As with the Service you can check through the API by executing
-
-````
-curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer your-token"  http://localhost:8888/1.0/api/ingresses?project_name=project&cluster_name=cluster&virtual_cluster_name=vamp-tutorial&application_name=application&ingress_name=tutorial-ingress
-````
-
-or through kubectl with
-
-````
-kubectl get ing tutorial-ingress -n-vamp-tutorial
-````
-
-When you have foudn the ip you can just call
+When you have found the ip you can just call
 
 ````
 http://1.2.3.4:9090
 ````
 
 by replacing the example ip with your own you will get a response from the service. 
-Since you just created a standard Service on top of your application, for the time being all request will be distributed equally aming the two Deployments that are part of the application.
+Since you just created a standard Service on top of your application, for the time being all request will be distributed equally among the two Deployments that are part of the application.
 To change that behaviour it is necessary to create a gateway.
 
 ### Creating a Gateway
 
 In order to regulate access to the different versions of your application you now need to create a Gateway for it.
-You can do that either through the ui or by simly sending a POST request to the path 
+So, select Gateway - Create Gateway and fill out the form with the data presented below, then hit submit.
 
-````
-http://localhost:8888/1.0/api/gateways?project_name=project&cluster_name=cluster&virtual_cluster_name=vamp-tutorial&application_name=application&gateway_name=tutorial-gateway
-````
+![](images/screen11.png)
 
-with the following body
+You can check the status of the Gateway by clicking on Gateway - Gateway List.
+This will display the list of Gateways and by selecting the one you just created you will be able to see its current configuration, as shown below.
 
-````
-{
-  "destination": "tutorial-service",
-  "routes": [
-    {
-      "weights": [
-        {
-          "version": "version1",
-          "weight": 50
-        },
-        {
-          "version": "version2",
-          "weight": 50
-        }
-      ]
-    }
-  ]
-}
-````
+![](images/screen12.png)
 
-This will tell istio to distribute traffic equally among the two versions, so, for the time being you will not be able to see any difference.
+The current configuration will tell istio to distribute traffic equally among the two versions, so, for the time being you will not be able to see any difference.
 You can however change the weight int he body and send a PUT request with the same url in order to experimnet with different settings.
+Checking the Gateway status through kubectl can be a bit harder than the previous scenarios.
+While a Gateway is a single entity in Vamp it can correspond, depending on its condition, to multiple Istio Route Rules on kubernetes.
+Hence you should runt he following commad:
 
+````
+kubectl get routerule -n-vamp-tutorial
+````
+
+Thi will list all the route rules in the namespace. 
+In this first example we didn't specify any condition, so you will see a singe route rule named vamp-tutorial-gateway-0, but keep in mind you could get multiple result, should you specify complex conditions.
+For example, let's try editing our gateway.
+Select Gateway - Gateway List and click on edit.
+Now specify the following condition:
+
+````
+( header \"User-Agent\" regex \"^.*(Chrome).*$\" ) or header \"User-Agent\" regex \"^.*(Nexus 6P Build/MMB29P).*$\" )
+````
+
+and hit submit.
+This will tell the gateway to let into the service only the requests with a user agent containing either "Chrome" or "Nexus 6P Build/MMB29P".
+You can easily test this from a browser or with any tool that allows you to send http requests towards your service.
+We can now check what happened on kubernetes by running again the same command as before:
+
+````
+kubectl get routerule -n-vamp-tutorial
+````
+
+This time you will be presented with two routerules vamp-tutorial-gateway-0 and vamp-tutorial-gateway-1.
+The reason for this is that or conditions cannot be handled by a single istio route rule, so it's necessary to create two with different priorities.
+Let's now edit again the gateway and remove the condition you just specified, before moving on to the next step.
 
 
 ### Performing a Canary Release
+
+It's time to try something a bit more complex.
+Vamp Gateways allow to specify Policies, that is automated processess than can alter the weights of the different versions over a period of time.
+When specifying a new Policy of this kind there are several options.
+
