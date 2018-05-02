@@ -53,7 +53,7 @@ kind: Deployment
 metadata:
   labels:
     app: vamp-tutorial-app
-    version: version1
+    version: version2
   name: vamp-tutorial-deployment2
   namespace: vamp-tutorial
 spec:

@@ -85,6 +85,20 @@ prometheus
 Should some of these be missing, Vamp will try to install Istio.
 Just keep in mind that if you happen to have pre-existing deployments, after the installation has been completed you will have to restart them or trigger a rolling update in order for the Istio Sidecar to be injected.
 
+## Terminology
+
+To get a better understanding of how Vmap works you should keep in mind the meaning of the following terms.
+Most of them overlap completely with kubernetes entities, but some don't.
+
+- Project: a project is a grouping of clusters
+- Cluster: a cluster corresponds to a speific Kubernets clusters
+- Virtual Cluster: a virtual cluster is a partition of a Cluster and is represented by a Namespace in Kubernetes.
+- Application: a grouping of realted deployments
+- Deployment: a Kubernetes deployment which represents a specific version of an Application
+- Service: a Kubernetes service associated with all Deployments of a given Application
+- Ingress: a Kubernetes ingress exposing an Application Service
+- Gateway: a mechanism regulating access to a the different versions of an Application through a configured Service. In Kubernetes it corresponds to one or more Istio Route Rules. 
+
 ## Performing a canary release
 
 ### Requirements
@@ -352,7 +366,7 @@ Now specify the following condition:
 and hit submit.
 This will tell the gateway to let into the service only the requests with a user agent containing either "Chrome" or "Nexus 6P Build/MMB29P".
 You can easily test this from a browser or with any tool that allows you to send http requests towards your service.
-We can now check what happened on kubernetes by running again the same command as before:
+You can now check what happened on kubernetes by running again the same command as before:
 
 ````
 kubectl get routerule -n-vamp-tutorial
@@ -362,10 +376,96 @@ This time you will be presented with two routerules vamp-tutorial-gateway-0 and 
 The reason for this is that or conditions cannot be handled by a single istio route rule, so it's necessary to create two with different priorities.
 Let's now edit again the gateway and remove the condition you just specified, before moving on to the next step.
 
-
 ### Performing a Canary Release
 
 It's time to try something a bit more complex.
-Vamp Gateways allow to specify Policies, that is automated processess than can alter the weights of the different versions over a period of time.
-When specifying a new Policy of this kind there are several options.
+Vamp Gateways allow to specify Policies, that is automated processess than can alter the Gateway configuration over a period of time.
+When specifying a new Policy of this kind there are several options, let's start with the simplest one.
+Select Gateway - List Gateway - edit and specify the values shown below in the Policies section, then submit.
+
+![](images/screen13.png)
+
+What you just did will trigger an automated process that will gradually shift the weights towards your target (version2 in this case).
+You will periodically get notifications that show the updates being applied to the gateway.
+As usual you will be able to check the weights status from the Gateway's detail.
+
+This is, of course, a pretty limited example. Usually you would like to put some form of rule to decide which version should prevail.
+Vamp can also help you in that scenario.
+Go back to the edit screen, remove the policy and reset the weights to 50/50, then submit.
+
+Let's say for example you want to rerun the previous scenario, but checking the healthiness of the two versions before applying chnages.
+You can esaily achieve that by editing the Gateway as shown in the next image
+
+![](images/screen14.png)
+
+To verify that everything is working as expected just run this command
+
+````
+kubectl edit -f deployment-with-failures.yaml
+````
+
+Using the yaml provided in the sample folders, whose content you can find below
+
+````
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: vamp-tutorial-app
+    version: version2
+  name: vamp-tutorial-deployment2
+  namespace: vamp-tutorial
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vamp-tutorial-app
+      deployment: vamp-tutorial-deployment2
+      version: version2
+  template:
+    metadata:
+      labels:
+        app: vamp-tutorial-app
+        deployment: vamp-tutorial-deployment2
+        version: version2
+    spec:
+      containers:
+      - env:
+        - name: SERVICE_NAME
+          value: version2
+        - name: FAILURE
+          value: "0.3"
+        image: magneticio/nodewebservice:2.0.11
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /health
+            port: 9090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 20
+        name: deployment1-0
+        ports:
+        - containerPort: 9090
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: 9090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 20
+````
+
+This will inject errors on 30% of the requests goin towards deployment2 and, consequently, cause the Policy to shift weights towards version1, despite the fact that version2 is the declared target.
+Obviously nothing will happen unless you actually send requests to the service.
+There's an easy way to do that thanks to the specific image we are using for this tutorial.
+Go to Ingress - List Ingress and open the details for the Ingress you previously created.
+You will get the following screen
+
+![](images/screen15.png)
+
 
