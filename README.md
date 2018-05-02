@@ -488,9 +488,37 @@ and editing the Gateway back to normal.
 #### Metric based canary release
 
 But what if you wanted to use some different metric to control the behaviour of the policy?
-That is also doable by setting up the Gateway as shown below
+In order to do that you can edit the Gateway as shown below
 
 ![](images/screen18.png)
+
+As you can see besides changing the type of Policy you also need to specify the **metric** parameter which will tell Vamp which metric or combination of metric to use.
+In this case we are basically replicating the behaviour from the health base canary release by calculating the ratio of successful responses over the total number of requests
+Metrics names are loosely based on prometheus metrics names (they are usually the last part of the metric name).
+Soem of the available metrics are:
+
+external_upstream_rq_200
+external_upstream_rq_2xx
+external_upstream_rq_500
+external_upstream_rq_503
+external_upstream_rq_5xx
+upstream_rq_total
+
+This type of Policy, however, comes with a limitation: you can only specify one condition, that is "select the version with the best metric".
+What if you wanted to have more complex condition?
+To do that you would have to use the last type of Policy available at the moment and configure the Gateway as shown below,
+by putting the condition
+
+````
+if ( ( metric \"version1\" \"external_upstream_rq_2xx\" / metric \"version1\" \"upstream_rq_total\" ) > ( metric \"version2\" \"external_upstream_rq_2xx\" / metric \"version2\" \"upstream_rq_total\" ) ) { result = version1; } else if ( ( metric \"version1\" \"external_upstream_rq_2xx\" / metric \"version1\" \"upstream_rq_total\" ) < ( metric \"version2\" \"external_upstream_rq_2xx\" / metric \"version2\" \"upstream_rq_total\" ) ) { result = version2; } else { result = nil; } result
+````
+
+in the value field for the metric parameter
+
+![](images/screen19.png)
+
+As you can probably understand by looking at the expression above, this Policy will again replicate the behaviour of the previous Policies, but it will allow for much greater flexibility.
+You will now be able to specify different versions based on the conditions you are verifying and also to retunr no version at all (by returning nil) when you want the Policy to not apply any change.
 
 
 
