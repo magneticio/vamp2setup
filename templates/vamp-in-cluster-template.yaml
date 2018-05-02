@@ -32,7 +32,7 @@ metadata:
   namespace: vamp-system
 type: Opaque
 data:
-  password: dG9vcg==
+  password: VAMP_ROOT_PASSWORD
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
