@@ -1,12 +1,13 @@
-# Vamp Setup
+# Vamp 2 Alpha Setup
 
-This Guide will help you set up Vamp on a kubernetes cluster.
+This Guide will help you set up Vamp 2 Alpha on a kubernetes cluster.
 
 # Prerequisites 
 * An existing kubernetes cluster with Kubernetes version 1.9 or above installed. 
 * The current version has been tested only on Google Cloud, so it's recommended that you use that as well, in order to avoid issues.
 * Kubectl should be installed on the local computer with authorizations to access the cluster.
-** Keep in mind that this is an Alpha release targeted at developers and dev/ops. Many of the features are currently limited and will likely change and improve in future versions. **
+
+**Keep in mind that this is an Alpha release targeted at developers and dev/ops. Many of the features are currently limited and will likely change and improve in future versions.**
 
 # installation steps
 
