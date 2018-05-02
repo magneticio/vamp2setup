@@ -24,7 +24,7 @@ fi
 encodedpassword=$(echo -n $password1 | base64)
 
 mkdir temp
-sed 's/VAMP_ROOT_PASSWORD/'${encodedpassword}'/g' ./templates//vamp-in-cluster-template.yaml > ./temp/vamp-in-cluster.yaml
+sed 's/VAMP_ROOT_PASSWORD/'${encodedpassword}'/g' ./templates/vamp-in-cluster-template.yaml > ./temp/vamp-in-cluster.yaml
 
 kubectl create -f ./temp/vamp-in-cluster.yaml
 
