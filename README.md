@@ -401,7 +401,7 @@ You can esaily achieve that by editing the Gateway as shown in the next image
 To verify that everything is working as expected just run this command
 
 ````
-kubectl edit -f deployment-with-failures.yaml
+kubectl replace -f deployment-with-failures.yaml
 ````
 
 Using the yaml provided in the sample folders, whose content you can find below
@@ -467,5 +467,32 @@ Go to Ingress - List Ingress and open the details for the Ingress you previously
 You will get the following screen
 
 ![](images/screen15.png)
+
+As you can see there's a link to your service. Click it and add /ui at the end to get to this ui.
+
+![](images/screen16.png)
+
+Now just input the url to your service ( http://vamp-tutorial-service:9090 ) into the empty field and this will both trigger continuous requests towards the service and show the real distribution over the two deployments, including the errors (n red).
+Thsi tool is not really part of Vamp, but it comes in handy to show the behaviour of Gateways and Istio.
+
+![](images/screen17.png)
+
+After you are done experimenting with this Policy you can return to the previous state by executing
+
+````
+kubectl replace -f deployments.yaml
+````
+
+and editing the Gateway back to normal.
+
+#### Metric based canary release
+
+But what if you wanted to use some different metric to control the behaviour of the policy?
+That is also doable by setting up the Gateway as shown below
+
+![](images/screen18.png)
+
+
+
 
 
