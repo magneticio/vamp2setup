@@ -11,31 +11,31 @@ This Guide will help you set up Vamp2 on a kubernetes cluster.
 
 git clone this repo or download [link]
 
-```console
-$ git clone https://github.com/magneticio/vamp2setup.git
+```
+git clone https://github.com/magneticio/vamp2setup.git
 ```
 or
-```console
-$ wget https://github.com/magneticio/vamp2setup/releases/download/pre0.0.1/setup.zip
-$ unzip setup.zip
+```
+wget https://github.com/magneticio/vamp2setup/releases/download/pre0.0.1/setup.zip
+unzip setup.zip
 ```
 
 Run:
-```console
-$ ./vamp-bootstrap.sh
+```
+./vamp-bootstrap.sh
 ```
 
 Enter password when asked, password will not be visable and it will be asked twice.
 
-In a happy world, installer will tell you where to connect like:
+Installer will tell you where to connect like:
 
-```console
+```
 use http://111.122.133.144:8888 to connect
 ```
 
-If you need to retrieve the IP afterawrds you can do it via kubectl
+If you need to retrieve the IP afterwards you can do it via kubectl
 
-```console
+```
 kubectl get svc vamp -n=vamp-system
 ```
 
@@ -51,6 +51,8 @@ The default username is root.
 ## Istio Setup
 
 Once installed, Vamp will automatically check for Istio on the default cluster.
+**Mind the fact that Vamp and Istio expect to be deployed on Kubernetes 1.9 or higher. 
+Also the current version has been tested only on Google Cloud, so it's recommended that you use that as well to run this tutorial**
 Vamp expects to find the following resources inside the istio-system namesapce:
 
 **Deployments:**
@@ -83,21 +85,21 @@ prometheus
 
 
 Should some of these be missing, Vamp will try to install Istio.
-Just keep in mind that if you happen to have pre-existing deployments, after the installation has been completed you will have to restart them or trigger a rolling update in order for the Istio Sidecar to be injected.
+**Keep in mind that if you happen to have pre-existing deployments, after the installation has been completed you will have to restart them or trigger a rolling update in order for the Istio Sidecar to be injected.**
 
 ## Terminology
 
-To get a better understanding of how Vmap works you should keep in mind the meaning of the following terms.
+To get a better understanding of how Vamp works you should keep in mind the meaning of the following terms.
 Most of them overlap completely with kubernetes entities, but some don't.
 
-- Project: a project is a grouping of clusters
-- Cluster: a cluster corresponds to a speific Kubernets clusters
-- Virtual Cluster: a virtual cluster is a partition of a Cluster and is represented by a Namespace in Kubernetes.
-- Application: a grouping of realted deployments
-- Deployment: a Kubernetes deployment which represents a specific version of an Application
-- Service: a Kubernetes service associated with all Deployments of a given Application
-- Ingress: a Kubernetes ingress exposing an Application Service
-- Gateway: a mechanism regulating access to a the different versions of an Application through a configured Service. In Kubernetes it corresponds to one or more Istio Route Rules. 
+- **Project**: a project is a grouping of clusters. This will automatically be created by Vamp, so you need not worry about if for this tutorial.
+- **Cluster**: a cluster corresponds to a speific Kubernets clusters. Just like the Project, this will automatically be created by Vamp.
+- **Virtual Cluster**: a virtual cluster is a partition of a Cluster and is represented by a Namespace in Kubernetes.
+- **Application**: a grouping of related deployments
+- **Deployment**: a Kubernetes deployment which represents a specific version of an Application
+- **Service**: a Kubernetes service associated with all Deployments of a given Application
+- **Ingress**: a Kubernetes ingress exposing an Application Service
+- **Gateway**: a mechanism regulating access to a the different versions of an Application through a configured Service. In Kubernetes it corresponds to one or more Istio Route Rules. 
 
 ## Performing a canary release
 
@@ -109,12 +111,12 @@ In this example we will guide you through the creation of a new Virtual Cluster,
 Vamp looks for some specific labels when detecting namespaces to be imported as Virtual Clusters.
 These labels are:
 
-- vamp-managed: a label that tells vamp to import and manage resources from this namespace into a Virtual Cluster with the same name.
-- istio-injection: a label that allows istio to perform automatic sidecar injection on the deployments in this namespace. 
-- cluster: the name of the cluster to which the Virtual Cluster belongs. This label will be addedd if it is missing.
-- project: the name of the cluster to which the Virtual Cluster belongs. This label will be addedd if it is missing.
+- **vamp-managed**: a label that tells vamp to import and manage resources from this namespace into a Virtual Cluster with the same name.
+- **istio-injection**: a label that allows istio to perform automatic sidecar injection on the deployments in this namespace. 
+- **cluster**: the name of the cluster to which the Virtual Cluster belongs. This label will be added if it is missing.
+- **project**: the name of the cluster to which the Virtual Cluster belongs. This label will be added if it is missing.
 
-Provided the first two labels are set, upon being deployed, Vamp will import all resources into the current Project and Cluster and add the two missing labels to the namespace.
+Provided the first two labels are set, upon being deployed, Vamp will import all resources into the current Project and Cluster and add the two optinal labels to the namespace if they are missing.
 For this example you can just use the following yaml (also available in the samples folder)
 
 ````
@@ -141,6 +143,7 @@ The new Virtual Cluster will be shown in the corresponding panel on the UI.
 
 From here you can edit the metadata of this Virtual Cluster. 
 For example you can associate a Slack webhook to it by adding a key **slack_webhook** with the correct value and a key **slack_channel** with the name of an existing channel.
+If you don't specify this last value **#vamp-notifications** will be used as a default.
 This will allow vamp to send notifications to that Slack channel.
 
 ![](images/screen2.png)
@@ -149,13 +152,13 @@ This will allow vamp to send notifications to that Slack channel.
 Once the Virtual Cluster is set up, you should make sure that the Deployments for your Application are created and running.
 All deployments require a set of three labels:
 
-- app: identifying the application to which the deployment belongs.
-- deployment: identifying the deployment itself. It is mainly used as a selector for the pods.
-- version: the version of the application to which the deployment belongs. This is used by Istio to dispatch traffic.
+- **app**: identifying the application to which the deployment belongs.
+- **deployment**: identifying the deployment itself. It is mainly used as a selector for the pods.
+- **version**: the version of the application to which the deployment belongs. This is used by Istio to dispatch traffic.
 
-For this example you will simply create two new deployments with the same app label and different deployment and version lables.
-To do that simply copy the yaml below it into a file, or get it from the sample folder.
-Then you can simply execute:
+For this example you will create two new deployments with the same app label and different deployment and version labels.
+To do that, copy the yaml below it into a file, or get it from the sample folder.
+Then you can execute:
 
 ````
 kubectl create -f deployment.yaml
@@ -264,7 +267,7 @@ spec:
 ````
 
 Assuming you set up everything correctly the deployments will be imported into Vamp and you will be able to check their statuses.
-From the UI you can simply select Application - List Application from the bar on the left and you will be presented with the list of available applications.
+From the UI you can select Application - List Application from the bar on the left and you will be presented with the list of available applications.
 
 ![](images/screen4.png)
 
@@ -273,7 +276,7 @@ By selecting the only available application that we just created you will get th
 ![](images/screen5.png)
 
 
-You can esaily double the information presented through kubectl by executing
+You can easily double-check the information presented through kubectl by executing
 
 ````
 kubectl get deploy -n=vamp-tutorial
@@ -299,7 +302,7 @@ From here you can edit and delete the service or simply check its details, which
 ![](images/screen8.png)
 
 As you can see the service has been created with the configuration provided.
-You can doublecheck it with kubectl by running the following command
+You can double-check it with kubectl by running the following command
 
 ````
 kubectl get svc vamp-tutorial-service -n-vamp-tutorial
@@ -393,7 +396,7 @@ This is, of course, a pretty limited example. Usually you would like to put some
 Vamp can also help you in that scenario.
 Go back to the edit screen, remove the policy and reset the weights to 50/50, then submit.
 
-Let's say for example you want to rerun the previous scenario, but checking the healthiness of the two versions before applying chnages.
+Let's say for example you want to rerun the previous scenario, but checking the healthiness of the two versions before applying changes.
 You can esaily achieve that by editing the Gateway as shown in the next image
 
 ![](images/screen14.png)
@@ -460,7 +463,7 @@ spec:
           timeoutSeconds: 20
 ````
 
-This will inject errors on 30% of the requests goin towards deployment2 and, consequently, cause the Policy to shift weights towards version1, despite the fact that version2 is the declared target.
+This will inject errors on 30% of the requests going towards deployment2 and, consequently, cause the Policy to shift weights towards version1, despite the fact that version2 is the declared target.
 Obviously nothing will happen unless you actually send requests to the service.
 There's an easy way to do that thanks to the specific image we are using for this tutorial.
 Go to Ingress - List Ingress and open the details for the Ingress you previously created.
@@ -472,8 +475,8 @@ As you can see there's a link to your service. Click it and add /ui at the end t
 
 ![](images/screen16.png)
 
-Now just input the url to your service ( http://vamp-tutorial-service:9090 ) into the empty field and this will both trigger continuous requests towards the service and show the real distribution over the two deployments, including the errors (n red).
-Thsi tool is not really part of Vamp, but it comes in handy to show the behaviour of Gateways and Istio.
+Now just input the url to your service ( http://vamp-tutorial-service:9090 ) into the empty field and this will both trigger continuous requests towards the service and show the real distribution over the two deployments, including the errors (highlighted in red).
+This tool is not really part of Vamp, but it comes in handy to show the behaviour of Gateways and Istio.
 
 ![](images/screen17.png)
 
@@ -494,18 +497,21 @@ In order to do that you can edit the Gateway as shown below
 
 As you can see besides changing the type of Policy you also need to specify the **metric** parameter which will tell Vamp which metric or combination of metric to use.
 In this case we are basically replicating the behaviour from the health base canary release by calculating the ratio of successful responses over the total number of requests
-Metrics names are loosely based on prometheus metrics names (they are usually the last part of the metric name).
-Soem of the available metrics are:
+Metrics names are loosely based on Prometheus metrics names stored by Envoy (they are usually the last part of the metric name).
+Some of the available metrics are:
 
-external_upstream_rq_200
-external_upstream_rq_2xx
-external_upstream_rq_500
-external_upstream_rq_503
-external_upstream_rq_5xx
-upstream_rq_total
+- **external_upstream_rq_200**
+- **external_upstream_rq_2xx**
+- **external_upstream_rq_500**
+- **external_upstream_rq_503**
+- **external_upstream_rq_5xx**
+- **upstream_rq_total**
 
 This type of Policy, however, comes with a limitation: you can only specify one condition, that is "select the version with the best metric".
 What if you wanted to have more complex condition?
+
+#### Custom canary release
+
 To do that you would have to use the last type of Policy available at the moment and configure the Gateway as shown below,
 by putting the condition
 
