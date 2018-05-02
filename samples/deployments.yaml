@@ -1,0 +1,99 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: vamp-tutorial-app
+    version: version1
+  name: vamp-tutorial-deployment1
+  namespace: vamp-tutorial
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vamp-tutorial-app
+      deployment: vamp-tutorial-deployment1
+      version: version1
+  template:
+    metadata:
+      labels:
+        app: vamp-tutorial-app
+        deployment: vamp-tutorial-deployment1
+        version: version1
+    spec:
+      containers:
+      - env:
+        - name: SERVICE_NAME
+          value: version1
+        image: magneticio/nodewebservice:2.0.11
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /health
+            port: 9090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 20
+        name: deployment1-0
+        ports:
+        - containerPort: 9090
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: 9090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 20
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: vamp-tutorial-app
+    version: version2
+  name: vamp-tutorial-deployment2
+  namespace: vamp-tutorial
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vamp-tutorial-app
+      deployment: vamp-tutorial-deployment2
+      version: version2
+  template:
+    metadata:
+      labels:
+        app: vamp-tutorial-app
+        deployment: vamp-tutorial-deployment2
+        version: version2
+    spec:
+      containers:
+      - env:
+        - name: SERVICE_NAME
+          value: version2
+        image: magneticio/nodewebservice:2.0.11
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /health
+            port: 9090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 20
+        name: deployment1-0
+        ports:
+        - containerPort: 9090
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: 9090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 20

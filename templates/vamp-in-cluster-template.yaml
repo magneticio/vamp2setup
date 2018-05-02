@@ -40,7 +40,6 @@ metadata:
   labels:
     app: vamp
     deployment: vamp
-    version: 0.1.8
   name: vamp
   namespace: vamp-system
 spec:
@@ -49,13 +48,11 @@ spec:
     matchLabels:
       app: vamp
       deployment: vamp
-      version: 0.1.8
   template:
     metadata:
       labels:
         app: vamp
         deployment: vamp
-        version: 0.1.8
     spec:
       containers:
       - env:
@@ -66,7 +63,7 @@ spec:
              secretKeyRef:
                 name: vamprootpassword
                 key: password
-        image: magneticio/vamp2:0.1.8
+        image: magneticio/vamp2:0.1.22
         imagePullPolicy: IfNotPresent
         name: vamp
         ports:
