@@ -2,7 +2,7 @@
 
 This Guide will help you set up Vamp 2 Alpha on a kubernetes cluster.
 
-##Table of contents
+## Table of contents
 
    * [Prerequisites](#prerequisites)
    * [installation steps](#installation-steps)
@@ -17,7 +17,7 @@ This Guide will help you set up Vamp 2 Alpha on a kubernetes cluster.
             * [Custom canary release](#custom-canary-release)
 
 
-##Installation
+## Installation
 
 ### Prerequisites 
 * An existing kubernetes cluster with Kubernetes version 1.9 or above installed. 
