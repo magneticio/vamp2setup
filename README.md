@@ -364,11 +364,11 @@ Select Gateway - Gateway List and click on edit.
 Now specify the following condition:
 
 ````
-( header \"User-Agent\" regex \"^.*(Chrome).*$\" ) or header \"User-Agent\" regex \"^.*(Nexus 6P Build/MMB29P).*$\" )
+header "User-Agent" regex "^.*(Chrome).*$"  or header "User-Agent" regex "^.*(Nexus 6P).*$"
 ````
 
 and hit submit.
-This will tell the gateway to let into the service only the requests with a user agent containing either "Chrome" or "Nexus 6P Build/MMB29P".
+This will tell the gateway to let into the service only the requests with a user agent containing either "Chrome" or "Nexus 6P".
 You can easily test this from a browser or with any tool that allows you to send http requests towards your service.
 You can now check what happened on kubernetes by running again the same command as before:
 
@@ -378,7 +378,23 @@ kubectl get routerule -n-vamp-tutorial
 
 This time you will be presented with two routerules vamp-tutorial-gateway-0 and vamp-tutorial-gateway-1.
 The reason for this is that or conditions cannot be handled by a single istio route rule, so it's necessary to create two with different priorities.
-Let's now edit again the gateway and remove the condition you just specified, before moving on to the next step.
+You might also find yourself in a situation in which you want to specify different weights for each condtion.
+In order to do thta, click on the add button and you will be able to configure a new route with its own condition and set of weights.
+You can for example set the following condition:
+
+````
+header "User-Agent" regex "^.*(Safari).*$"
+````
+
+The gateway configuration will then look like the one shown below.
+
+![](images/screen20.png)
+
+By doing this you will have all requests with User-Agent containing "Chrome" or "Nexus 6P" equally split between version1 and version2, while all requests with User-Agent containing "Safari" will be sent to version1.
+Checking again the configuration on Kubernetes will yield three route rules this time, since the third condition has to be handled separately.
+**Mind the fact that, due to a known Istio issue, if you specify a route with a condition, then all routes must also have a condition. Otherwise the Gateway will not work properly.**
+
+Let's now edit again the gateway and remove the conditions you just specified, before moving on to the next step.
 
 ### Performing a Canary Release
 
@@ -497,6 +513,12 @@ In order to do that you can edit the Gateway as shown below
 ![](images/screen18.png)
 
 As you can see besides changing the type of Policy you also need to specify the **metric** parameter which will tell Vamp which metric or combination of metric to use.
+In this scenario the value we are using is:
+
+````
+external_upstream_rq_2xx / upstream_rq_total
+````
+
 In this case we are basically replicating the behaviour from the health base canary release by calculating the ratio of successful responses over the total number of requests
 Metrics names are loosely based on Prometheus metrics names stored by Envoy (they are usually the last part of the metric name).
 Some of the available metrics are:
@@ -517,7 +539,7 @@ To do that you would have to use the last type of Policy available at the moment
 by putting the condition
 
 ````
-if ( ( metric \"version1\" \"external_upstream_rq_2xx\" / metric \"version1\" \"upstream_rq_total\" ) > ( metric \"version2\" \"external_upstream_rq_2xx\" / metric \"version2\" \"upstream_rq_total\" ) ) { result = version1; } else if ( ( metric \"version1\" \"external_upstream_rq_2xx\" / metric \"version1\" \"upstream_rq_total\" ) < ( metric \"version2\" \"external_upstream_rq_2xx\" / metric \"version2\" \"upstream_rq_total\" ) ) { result = version2; } else { result = nil; } result
+if ( ( metric "version1" "external_upstream_rq_2xx" / metric "version1" "upstream_rq_total" ) > ( metric "version2" "external_upstream_rq_2xx" / metric "version2" \"upstream_rq_total" ) ) { result = version1; } else if ( ( metric "version1" "external_upstream_rq_2xx" / metric "version1" "upstream_rq_total" ) < ( metric "version2" "external_upstream_rq_2xx" / metric "version2" "upstream_rq_total" ) ) { result = version2; } else { result = nil; } result
 ````
 
 in the value field for the metric parameter
