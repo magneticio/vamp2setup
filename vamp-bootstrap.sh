@@ -35,7 +35,7 @@ do
     ip=$(kubectl describe svc vamp -n vamp-system | grep "LoadBalancer Ingress:" |  awk '{print $3}')
     echo $ip
     if [ $ip ]; then
-        echo "use http://$ip:8888 to connect"
+        echo "use http://$ip:8888/ui/#/login to connect"
         break
     fi
 done

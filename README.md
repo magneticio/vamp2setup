@@ -267,7 +267,8 @@ spec:
 ````
 
 Assuming you set up everything correctly the deployments will be imported into Vamp and you will be able to check their statuses.
-From the UI you can select Application - List Application from the bar on the left and you will be presented with the list of available applications.
+First of all make sure you selected the Virtual Cluster, so opern Virtual Cluster - List Virtual Cluster and click on the only available one.
+Now you can open Application - List Application from the bar on the left and you will be presented with the list of available applications.
 
 ![](images/screen4.png)
 
@@ -286,22 +287,22 @@ kubectl get deploy -n=vamp-tutorial
 ### Exposing your application
 
 Now that you have your Application running and two Deployments for it you can create a Service and an Ingress to expose them.
-Again you can simply use the UI to achieve both tasks.
-Simply select Service - Create Service from the bar on the left and fill the form that is shown with the data presented below.
+Again you can use the UI to achieve both tasks.
+Make sure you seected both the Virtual Cluster and the Application and then simply select Service - Create Service from the bar on the left and fill the form that is shown with the data presented below.
 
 ![](images/screen6.png)
 
 Then submit.
-This will create a new service name vamp-tutorial-service that will be accessible internally to the cluster.
-You can check the status of this service through the ui by selecting Service - List Service
+This will create a new Service named vamp-tutorial-service that will be accessible internally to the Cluster.
+You can check the status of this Service through the ui by selecting Service - List Service
 
 ![](images/screen7.png)
 
-From here you can edit and delete the service or simply check its details, which is what we are going to do now.
+From here you can edit and delete the Service or simply check its details, which is what we are going to do now.
 
 ![](images/screen8.png)
 
-As you can see the service has been created with the configuration provided.
+As you can see the Service has been created with the configuration provided.
 You can double-check it with kubectl by running the following command
 
 ````
@@ -524,7 +525,7 @@ in the value field for the metric parameter
 ![](images/screen19.png)
 
 As you can probably understand by looking at the expression above, this Policy will again replicate the behaviour of the previous Policies, but it will allow for much greater flexibility.
-You will now be able to specify different versions based on the conditions you are verifying and also to retunr no version at all (by returning nil) when you want the Policy to not apply any change.
+You will now be able to specify different versions based on the conditions you are verifying and also to return no version at all (by returning nil) when you want the Policy to not apply any change.
 
 
 
