@@ -2,14 +2,31 @@
 
 This Guide will help you set up Vamp 2 Alpha on a kubernetes cluster.
 
-# Prerequisites 
+##Table of contents
+
+   * [Prerequisites](#prerequisites)
+   * [installation steps](#installation-steps)
+      * [Istio Setup](#istio-setup)
+      * [Terminology](#terminology)
+      * [Performing a canary release](#performing-a-canary-release)
+         * [Requirements](#requirements)
+         * [Exposing your application](#exposing-your-application)
+         * [Creating a Gateway](#creating-a-gateway)
+         * [Performing a Canary Release](#performing-a-canary-release-1)
+            * [Metric based canary release](#metric-based-canary-release)
+            * [Custom canary release](#custom-canary-release)
+
+
+##Installation
+
+### Prerequisites 
 * An existing kubernetes cluster with Kubernetes version 1.9 or above installed. 
 * The current version has been tested only on Google Cloud, so it's recommended that you use that as well, in order to avoid issues.
 * Kubectl should be installed on the local computer with authorizations to access the cluster.
 
 **Keep in mind that this is an Alpha release targeted at developers and dev/ops. Many of the features are currently limited and will likely change and improve in future versions.**
 
-# installation steps
+### Installation steps
 
 git clone this repo or download [link]
 
@@ -50,7 +67,7 @@ to login and start using.
 The default username is root.
 
 
-## Istio Setup
+### Istio Setup
 
 Once installed, Vamp will automatically check for Istio on the default cluster.
 Vamp expects to find the following resources inside the istio-system namesapce:

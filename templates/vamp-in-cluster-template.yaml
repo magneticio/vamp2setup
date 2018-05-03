@@ -63,7 +63,7 @@ spec:
              secretKeyRef:
                 name: vamprootpassword
                 key: password
-        image: magneticio/vamp2:0.1.31
+        image: magneticio/vamp2:0.1.34
         imagePullPolicy: IfNotPresent
         name: vamp
         ports:
