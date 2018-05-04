@@ -425,6 +425,7 @@ Select Gateway - List Gateway - edit and specify the values shown below in the P
 What you just did will trigger an automated process that will gradually shift the weights towards your target (version2 in this case).
 You will periodically get notifications that show the updates being applied to the gateway.
 As usual you will be able to check the weights status from the Gateway's detail.
+It is also possible to configure the weight change at each update. The default value is 10, but you can specify it by adding the "step" parameter wth the desired value.
 
 This is, of course, a pretty limited example. Usually you would like to put some form of rule to decide which version should prevail.
 Vamp can also help you in that scenario.
