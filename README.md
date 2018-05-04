@@ -130,19 +130,22 @@ Most of them overlap completely with kubernetes entities, but some don't.
 
 ### Requirements
 
-In order to perform a canary release you must make sure that you have an Application with at least two Deployments installed in the cluster.
-First of all, however you need to set up a Virtual Cluster, or add the correct labels to an existing one.
-In this example we will guide you through the creation of a new Virtual Cluster, but you should be able to use these steps as a basis to easily update your pre-existing namespace.
+In order to perform a canary release you need to have an Application with at least two Deployments installed in the cluster.
+
+However, before you can begin you need to set up a Virtual Cluster, or add the correct labels to an existing one.
+
+In this section we guide you through the creation of a new Virtual Cluster, but you should be able to use these steps as a basis for updating a pre-existing namespace.
 Lamia looks for some specific labels when detecting namespaces to be imported as Virtual Clusters.
+
 These labels are:
+- **vamp-managed**: this label indicates that Lamia should import and manage resources from this namespace. They are imported into a Virtual Cluster with the same name.
+- **istio-injection**: this label indicates to Istio that it should perform automatic sidecar injection on the deployments in this namespace. 
+- **cluster**: (optional) this is the name of the Cluster to which the Virtual Cluster belongs. Lamia creates this label will be automatically if it is missing.
+- **project**: (optional) this name of the Project to which the Virtual Cluster belongs. Lamia creates this label will be automatically if it is missing.
 
-- **vamp-managed**: a label that tells vamp to import and manage resources from this namespace into a Virtual Cluster with the same name.
-- **istio-injection**: a label that allows istio to perform automatic sidecar injection on the deployments in this namespace. 
-- **cluster**: the name of the cluster to which the Virtual Cluster belongs. This label will be added if it is missing.
-- **project**: the name of the cluster to which the Virtual Cluster belongs. This label will be added if it is missing.
+Provided the first two labels are set, then once Lamia is deployed, it will import all the resources from a namespace into the current Project and Cluster and add the two optinal labels to the namespace if they are missing.
 
-Provided the first two labels are set, upon being deployed, Lamia will import all resources into the current Project and Cluster and add the two optinal labels to the namespace if they are missing.
-For this example you can just use the following yaml (also available in the samples folder)
+You can just use the following yaml to create a Virtual Cluster called `vamp-tutorial`.
 
 ````
 apiVersion: v1
@@ -156,7 +159,7 @@ metadata:
   name: vamp-tutorial
 ````
 
-Just copy it into a file and run 
+Just copy it into a file or use the sample [namespace.yaml](samples/namespace.yaml) and then run 
 
 ````
 kubectl create -f namespace.yaml
@@ -166,20 +169,22 @@ The new Virtual Cluster will be shown in the corresponding panel on the UI.
 
 ![](images/screen1.png)
 
-From here you can edit the metadata of this Virtual Cluster. 
-For example you can associate a Slack webhook to it by adding a key **slack_webhook** with the correct value and a key **slack_channel** with the name of an existing channel.
-If you don't specify this last value **#vamp-notifications** will be used as a default.
-This will allow vamp to send notifications to that Slack channel.
+You can now edit the metadata of the Virtual Cluster.
+
+For example, you can associate a Slack channel with a Virtual Cluster by adding the following keys:
+- **slack_webhook**: a valid webhook
+- **slack_channel**: the name of the channel you want to use. The default is `#vamp-notifications`
 
 ![](images/screen2.png)
 
+This will allow Lamia to send notifications to the specified Slack channel.
 
-Once the Virtual Cluster is set up, you should make sure that the Deployments for your Application are created and running.
+Once the Virtual Cluster is set up, you need to sure that the Deployments for your Application are created and running.
+
 All deployments require a set of three labels:
-
-- **app**: identifying the application to which the deployment belongs.
-- **deployment**: identifying the deployment itself. It is mainly used as a selector for the pods.
-- **version**: the version of the application to which the deployment belongs. This is used by Istio to dispatch traffic.
+- **app**: identifies the Application to which the Deployment belongs.
+- **deployment**: identifies the Deployment itself. This is used as a selector for the pods.
+- **version**: the version of the Application to which the Deployment belongs. This is used by Istio to dispatch traffic.
 
 For this example you will create two new deployments with the same app label and different deployment and version labels.
 To do that, copy the yaml below it into a file, or get it from the sample folder.
