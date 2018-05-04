@@ -74,31 +74,31 @@ Vamp expects to find the following resources inside the istio-system namesapce:
 
 **Deployments:**
 
-istio-ca              
-istio-ingress         
-istio-mixer           
-istio-pilot           
-istio-sidecar-injector
-prometheus            
+- istio-ca              
+- istio-ingress         
+- istio-mixer           
+- istio-pilot           
+- istio-sidecar-injector
+- prometheus            
 
 **Services:**
 
-istio-ingress
-istio-mixer
-istio-pilot
-istio-sidecar-injector
-prometheus
-prometheus-external
+- istio-ingress
+- istio-mixer
+- istio-pilot
+- istio-sidecar-injector
+- prometheus
+- prometheus-external
 
 **Service Accounts:**
 
-default
-istio-ca-service-account
-istio-ingress-service-account
-istio-mixer-service-account
-istio-pilot-service-account
-istio-sidecar-injector-service-account
-prometheus
+- default
+- istio-ca-service-account
+- istio-ingress-service-account
+- istio-mixer-service-account
+- istio-pilot-service-account
+- istio-sidecar-injector-service-account
+- prometheus
 
 
 Should some of these be missing, Vamp will try to install Istio.
