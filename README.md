@@ -117,6 +117,7 @@ Most of them overlap completely with kubernetes entities, but some don't.
 - **Service**: a Kubernetes service associated with all Deployments of a given Application
 - **Ingress**: a Kubernetes ingress exposing an Application Service
 - **Gateway**: a mechanism regulating access to a the different versions of an Application through a configured Service. In Kubernetes it corresponds to one or more Istio Route Rules. 
+- **Policy**: an automated process that periodically performs actions over an entity. Currently employed only for Gateways. For more details refer to the [Performing a canary release](#performing-a-canary-release) section. 
 
 ## Performing a canary release
 
@@ -416,7 +417,7 @@ Let's now edit again the gateway and remove the conditions you just specified, b
 ### Performing a Canary Release
 
 It's time to try something a bit more complex.
-Vamp Gateways allow to specify Policies, that is automated processess than can alter the Gateway configuration over a period of time.
+Vamp Gateways allow to specify Policies, that is automated processes than can alter the Gateway configuration over a period of time.
 When specifying a new Policy of this kind there are several options, let's start with the simplest one.
 Select Gateway - List Gateway - edit and specify the values shown below in the Policies section, then submit.
 
