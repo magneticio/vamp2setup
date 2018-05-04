@@ -1,6 +1,12 @@
-# Vamp 2 Alpha Setup
+# Lamia Alpha
 
-This Guide will help you set up Vamp 2 Alpha on a kubernetes cluster.
+Lamia is a single Docker container that provides a REST API and React-based UI that you can use to:
+
+- gradually roll-out a new version of a service;
+- automatically rollback to the original version, in the case of errors; and
+- apply routing conditions.
+
+This Guide will help you set up Lamia on a kubernetes cluster.
 
 ## Table of contents
 
@@ -69,8 +75,8 @@ The default username is root.
 
 ### Istio Setup
 
-Once installed, Vamp will automatically check for Istio on the default cluster.
-Vamp expects to find the following resources inside the istio-system namesapce:
+Once installed, Lamia will automatically check for Istio on the default cluster.
+Lamia expects to find the following resources inside the istio-system namesapce:
 
 **Deployments:**
 
@@ -101,16 +107,16 @@ Vamp expects to find the following resources inside the istio-system namesapce:
 - prometheus
 
 
-Should some of these be missing, Vamp will try to install Istio.
+Should some of these be missing, Lamia will try to install Istio.
 **Keep in mind that if you happen to have pre-existing deployments, after the installation has been completed you will have to restart them or trigger a rolling update in order for the Istio Sidecar to be injected.**
 
 ## Terminology
 
-To get a better understanding of how Vamp works you should keep in mind the meaning of the following terms.
+To get a better understanding of how Lamia works you should keep in mind the meaning of the following terms.
 Most of them overlap completely with kubernetes entities, but some don't.
 
-- **Project**: a project is a grouping of clusters. This will automatically be created by Vamp, so you need not worry about if for this tutorial.
-- **Cluster**: a cluster corresponds to a speific Kubernets clusters. Just like the Project, this will automatically be created by Vamp.
+- **Project**: a project is a grouping of clusters. This will automatically be created by Lamia, so you need not worry about if for this tutorial.
+- **Cluster**: a cluster corresponds to a speific Kubernets clusters. Just like the Project, this will automatically be created by Lamia.
 - **Virtual Cluster**: a virtual cluster is a partition of a Cluster and is represented by a Namespace in Kubernetes.
 - **Application**: a grouping of related deployments
 - **Deployment**: a Kubernetes deployment which represents a specific version of an Application
@@ -126,7 +132,7 @@ Most of them overlap completely with kubernetes entities, but some don't.
 In order to perform a canary release you must make sure that you have an Application with at least two Deployments installed in the cluster.
 First of all, however you need to set up a Virtual Cluster, or add the correct labels to an existing one.
 In this example we will guide you through the creation of a new Virtual Cluster, but you should be able to use these steps as a basis to easily update your pre-existing namespace.
-Vamp looks for some specific labels when detecting namespaces to be imported as Virtual Clusters.
+Lamia looks for some specific labels when detecting namespaces to be imported as Virtual Clusters.
 These labels are:
 
 - **vamp-managed**: a label that tells vamp to import and manage resources from this namespace into a Virtual Cluster with the same name.
@@ -134,7 +140,7 @@ These labels are:
 - **cluster**: the name of the cluster to which the Virtual Cluster belongs. This label will be added if it is missing.
 - **project**: the name of the cluster to which the Virtual Cluster belongs. This label will be added if it is missing.
 
-Provided the first two labels are set, upon being deployed, Vamp will import all resources into the current Project and Cluster and add the two optinal labels to the namespace if they are missing.
+Provided the first two labels are set, upon being deployed, Lamia will import all resources into the current Project and Cluster and add the two optinal labels to the namespace if they are missing.
 For this example you can just use the following yaml (also available in the samples folder)
 
 ````
@@ -284,7 +290,7 @@ spec:
           timeoutSeconds: 20
 ````
 
-Assuming you set up everything correctly the deployments will be imported into Vamp and you will be able to check their statuses.
+Assuming you set up everything correctly the deployments will be imported into Lamia and you will be able to check their statuses.
 First of all make sure you selected the Virtual Cluster, so opern Virtual Cluster - List Virtual Cluster and click on the only available one.
 Now you can open Application - List Application from the bar on the left and you will be presented with the list of available applications.
 
@@ -369,7 +375,7 @@ The current configuration will tell istio to distribute traffic equally among th
 You can however change the weights as you like and experiment with different settings.
 **Keep in mind that the weights should always add up to 100, otherwise the configuration will not be applied.**
 Checking the Gateway status through kubectl can be a bit harder than the previous scenarios.
-While a Gateway is a single entity in Vamp it can correspond, depending on its condition, to multiple Istio Route Rules on kubernetes.
+While a Gateway is a single entity in Lamia it can correspond, depending on its condition, to multiple Istio Route Rules on kubernetes.
 Hence you should runt he following commad:
 
 ````
@@ -418,7 +424,7 @@ Let's now edit again the gateway and remove the conditions you just specified, b
 ### Performing a Canary Release
 
 It's time to try something a bit more complex.
-Vamp Gateways allow to specify Policies, that is automated processes than can alter the Gateway configuration over a period of time.
+Lamia Gateways allow to specify Policies, that is automated processes than can alter the Gateway configuration over a period of time.
 When specifying a new Policy of this kind there are several options, let's start with the simplest one.
 Select Gateway - List Gateway - edit and specify the values shown below in the Policies section, then submit.
 
@@ -430,7 +436,7 @@ As usual you will be able to check the weights status from the Gateway's detail.
 It is also possible to configure the weight change at each update. The default value is 10, but you can specify it by adding the "step" parameter wth the desired value.
 
 This is, of course, a pretty limited example. Usually you would like to put some form of rule to decide which version should prevail.
-Vamp can also help you in that scenario.
+Lamia can also help you in that scenario.
 Go back to the edit screen, remove the policy and reset the weights to 50/50, then submit.
 
 Let's say for example you want to rerun the previous scenario, but checking the healthiness of the two versions before applying changes.
@@ -513,7 +519,7 @@ As you can see there's a link to your service. Click it and add /ui at the end t
 ![](images/screen16.png)
 
 Now just input the url to your service ( http://vamp-tutorial-service:9090 ) into the empty field and this will both trigger continuous requests towards the service and show the real distribution over the two deployments, including the errors (highlighted in red).
-This tool is not really part of Vamp, but it comes in handy to show the behaviour of Gateways and Istio.
+This tool is not really part of Lamia, but it comes in handy to show the behaviour of Gateways and Istio.
 
 ![](images/screen17.png)
 
@@ -532,7 +538,7 @@ In order to do that you can edit the Gateway as shown below
 
 ![](images/screen18.png)
 
-As you can see besides changing the type of Policy you also need to specify the **metric** parameter which will tell Vamp which metric or combination of metric to use.
+As you can see besides changing the type of Policy you also need to specify the **metric** parameter which will tell Lamia which metric or combination of metric to use.
 In this scenario the value we are using is:
 
 ````
