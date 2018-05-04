@@ -330,7 +330,7 @@ As you can see the Service has been created with the configuration provided.
 You can double-check it with kubectl by running the following command
 
 ````
-kubectl get svc vamp-tutorial-service -n-vamp-tutorial
+kubectl get svc vamp-tutorial-service -n vamp-tutorial
 ````
 
 It's now time to expose the Service externally by creating an Ingress.
