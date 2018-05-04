@@ -28,7 +28,7 @@ This Guide will help you set up Vamp 2 Alpha on a kubernetes cluster.
 
 ### Installation steps
 
-git clone this repo or download [link]
+git clone this repo or download [setup.zip](https://github.com/magneticio/vamp2setup/releases/download/pre0.0.1/setup.zip)
 
 ```
 git clone https://github.com/magneticio/vamp2setup.git
@@ -44,7 +44,7 @@ Run:
 ./vamp-bootstrap.sh
 ```
 
-Enter password when asked, password will not be visable and it will be asked twice.
+Enter password when asked, password will not be visible and it will be asked twice.
 
 Installer will tell you where to connect like:
 
@@ -538,7 +538,7 @@ In this scenario the value we are using is:
 external_upstream_rq_2xx / upstream_rq_total
 ````
 
-In this case we are basically replicating the behaviour from the health base canary release by calculating the ratio of successful responses over the total number of requests
+In this case we are basically replicating the behaviour from the health based canary release by calculating the ratio of successful responses over the total number of requests
 Metrics names are loosely based on Prometheus metrics names stored by Envoy (they are usually the last part of the metric name).
 Some of the available metrics are:
 
