@@ -346,13 +346,13 @@ By accessing Ingress - Ingress List you will be able to check the new Ingress an
 The same can be achieved through kubectl by running
 
 ````
-kubectl get ing vamp-tutorial-ingress -n-vamp-tutorial
+kubectl get ing vamp-tutorial-ingress -n vamp-tutorial
 ````
 
 When you have found the ip you can just call
 
 ````
-http://1.2.3.4:9090
+http://1.2.3.4
 ````
 
 by replacing the example ip with your own you will get a response from the service. 
