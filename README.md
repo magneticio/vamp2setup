@@ -15,7 +15,7 @@ This Guide will help you set up Vamp 2 Alpha on a kubernetes cluster.
          * [Performing a Canary Release](#performing-a-canary-release-1)
             * [Metric based canary release](#metric-based-canary-release)
             * [Custom canary release](#custom-canary-release)
-
+      * [API](#api)
 
 ## Installation
 
@@ -366,7 +366,8 @@ This will display the list of Gateways and by selecting the one you just created
 ![](images/screen12.png)
 
 The current configuration will tell istio to distribute traffic equally among the two versions, so, for the time being you will not be able to see any difference.
-You can however change the weight int he body and send a PUT request with the same url in order to experimnet with different settings.
+You can however change the weights as you like and experiment with different settings.
+**Keep in mind that the weights should always add up to 100, otherwise the configuration will not be applied.**
 Checking the Gateway status through kubectl can be a bit harder than the previous scenarios.
 While a Gateway is a single entity in Vamp it can correspond, depending on its condition, to multiple Istio Route Rules on kubernetes.
 Hence you should runt he following commad:
@@ -568,6 +569,16 @@ in the value field for the metric parameter
 As you can probably understand by looking at the expression above, this Policy will again replicate the behaviour of the previous Policies, but it will allow for much greater flexibility.
 You will now be able to specify different versions based on the conditions you are verifying and also to return no version at all (by returning nil) when you want the Policy to not apply any change.
 
+## API
+
+All the operations performed during this tutorial are also achievable through the API. You can reach the documentation for Lamia API at the following url:
+
+````
+http://1.2.3.4/swagger
+````
+
+where 1.2.3.4 should be replaced with your ip.
+Mind the fact that loading the documentation might take some time.
 
 
 
