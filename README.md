@@ -107,23 +107,24 @@ Lamia expects to find the following resources inside the istio-system namesapce:
 - prometheus
 
 
-Should some of these be missing, Lamia will try to install Istio.
-**Keep in mind that if you happen to have pre-existing deployments, after the installation has been completed you will have to restart them or trigger a rolling update in order for the Istio Sidecar to be injected.**
+If any of these resources are missing, Lamia will try to install Istio.
+
+**Keep in mind that if you have pre-existing deployments, then after the installation is complete, you will need to restart them or trigger a rolling update in order for the Istio Sidecar to be injected.**
 
 ## Terminology
 
 To get a better understanding of how Lamia works you should keep in mind the meaning of the following terms.
 Most of them overlap completely with kubernetes entities, but some don't.
 
-- **Project**: a project is a grouping of clusters. This will automatically be created by Lamia, so you need not worry about if for this tutorial.
-- **Cluster**: a cluster corresponds to a speific Kubernets clusters. Just like the Project, this will automatically be created by Lamia.
+- **Project**: a project is a grouping of clusters. This will automatically be created by Lamia.
+- **Cluster**: a cluster corresponds to a specific Kubernets clusters. Just like the Project, this will automatically be created by Lamia.
 - **Virtual Cluster**: a virtual cluster is a partition of a Cluster and is represented by a Namespace in Kubernetes.
 - **Application**: a grouping of related deployments
 - **Deployment**: a Kubernetes deployment which represents a specific version of an Application
 - **Service**: a Kubernetes service associated with all Deployments of a given Application
 - **Ingress**: a Kubernetes ingress exposing an Application Service
-- **Gateway**: a mechanism regulating access to a the different versions of an Application through a configured Service. In Kubernetes it corresponds to one or more Istio Route Rules. 
-- **Policy**: an automated process that periodically performs actions over an entity. Currently employed only for Gateways. For more details refer to the [Performing a canary release](#performing-a-canary-release) section. 
+- **Gateway**: a component for regulating access to the different versions of an Application through a configured Service. In Kubernetes this corresponds to one or more Istio Route Rules. 
+- **Policy**: an automated process that periodically performs actions over an entity. Currently only used for Gateways. For more details refer to the [Performing a canary release](#performing-a-canary-release) section. 
 
 ## Performing a canary release
 
