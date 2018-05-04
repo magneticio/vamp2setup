@@ -44,7 +44,7 @@ Run:
 ./vamp-bootstrap.sh
 ```
 
-Enter password when asked, password will not be visable and it will be asked twice.
+Enter password when asked, password will not be visible and it will be asked twice.
 
 Installer will tell you where to connect like:
 
