@@ -537,7 +537,7 @@ In this scenario the value we are using is:
 external_upstream_rq_2xx / upstream_rq_total
 ````
 
-In this case we are basically replicating the behaviour from the health base canary release by calculating the ratio of successful responses over the total number of requests
+In this case we are basically replicating the behaviour from the health based canary release by calculating the ratio of successful responses over the total number of requests
 Metrics names are loosely based on Prometheus metrics names stored by Envoy (they are usually the last part of the metric name).
 Some of the available metrics are:
 
