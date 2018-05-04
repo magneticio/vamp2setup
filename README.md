@@ -1,4 +1,4 @@
-# Lamia Alpha
+# Vamp Lamia Alpha
 
 Lamia is a single Docker container that provides a REST API and React-based UI that you can use to:
 
