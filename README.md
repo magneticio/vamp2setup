@@ -145,8 +145,12 @@ These labels are:
 
 Provided the first two labels are set, then once Lamia is deployed, it will import all the resources from a namespace into the current Project and Cluster and add the two optinal labels to the namespace if they are missing.
 
-You can just use the following yaml to create a Virtual Cluster called `vamp-tutorial`.
+You can use the sample [namespace.yaml](samples/namespace.yaml) to create a Virtual Cluster called `vamp-tutorial`.
+````
+kubectl create -f namespace.yaml
+````
 
+namespace.yaml:
 ````
 apiVersion: v1
 kind: Namespace
@@ -159,12 +163,6 @@ metadata:
   name: vamp-tutorial
 ````
 
-Just copy it into a file or use the sample [namespace.yaml](samples/namespace.yaml) and then run 
-
-````
-kubectl create -f namespace.yaml
-````
-
 The new Virtual Cluster will be shown in the corresponding panel on the UI.
 
 ![](images/screen1.png)
@@ -175,9 +173,9 @@ For example, you can associate a Slack channel with a Virtual Cluster by adding 
 - **slack_webhook**: a valid webhook
 - **slack_channel**: the name of the channel you want to use. The default is `#vamp-notifications`
 
-![](images/screen2.png)
-
 This will allow Lamia to send notifications to the specified Slack channel.
+
+![](images/screen2.png)
 
 Once the Virtual Cluster is set up, you need to sure that the Deployments for your Application are created and running.
 
@@ -186,14 +184,13 @@ All deployments require a set of three labels:
 - **deployment**: identifies the Deployment itself. This is used as a selector for the pods.
 - **version**: the version of the Application to which the Deployment belongs. This is used by Istio to dispatch traffic.
 
-For this example you will create two new deployments with the same app label and different deployment and version labels.
-To do that, copy the yaml below it into a file, or get it from the sample folder.
-Then you can execute:
+You can then use the sample [deployment.yaml](samples/de.yaml) to create two new deployments with the same app label and different deployment and version labels.
 
 ````
 kubectl create -f deployment.yaml
 ````
 
+deployment.yaml:
 ````
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -296,18 +293,19 @@ spec:
           timeoutSeconds: 20
 ````
 
-Assuming you set up everything correctly the deployments will be imported into Lamia and you will be able to check their statuses.
-First of all make sure you selected the Virtual Cluster, so opern Virtual Cluster - List Virtual Cluster and click on the only available one.
-Now you can open Application - List Application from the bar on the left and you will be presented with the list of available applications.
+Assuming the command executed correctly, the deployments will be imported into Lamia.
+
+First, open Virtual Cluster, click on List Virtual Cluster and select `vamp-tutorial`.
+Now, you can open Application, click on List Application and you will be presented with the list of the available applications.
 
 ![](images/screen4.png)
 
-By selecting the only available application that we just created you will get the list of deployments included in it.
+Select `vamp-tutorial-app` to see the list of deployments you just created.
 
 ![](images/screen5.png)
 
 
-You can easily double-check the information presented through kubectl by executing
+You can compare this with the information presented through `kubectl` by executing:
 
 ````
 kubectl get deploy -n=vamp-tutorial
