@@ -298,9 +298,9 @@ spec:
 
 Assuming the command executed correctly, the deployments will be imported into Lamia.
 
-First, open Virtual Cluster, click on List Virtual Cluster and select `vamp-tutorial`.
+First, open the Virtual Cluster tab, click on List Virtual Cluster and select `vamp-tutorial`.
 
-Now, you can open Application, click on List Application and you will be presented with the list of the available applications.
+Now, you can open the Application tab, click on List Application and you will be presented with the list of the available applications.
 
 ![](images/screen4.png)
 
@@ -308,7 +308,7 @@ Select `vamp-tutorial-app` to see the list of deployments you just created.
 
 ![](images/screen5.png)
 
-You can compare this with the information presented through `kubectl` by executing:
+You can compare this with the information presented through `kubectl` by running the following command:
 
 ````
 kubectl get deploy -n=vamp-tutorial
@@ -316,24 +316,33 @@ kubectl get deploy -n=vamp-tutorial
 
 ### Exposing Your Application
 
-Now that you have your Application running and two Deployments for it you can create a Service and an Ingress to expose them.
-Again you can use the UI to achieve both tasks.
-Make sure you seected both the Virtual Cluster and the Application and then simply select Service - Create Service from the bar on the left and fill the form that is shown with the data presented below.
+Once you have your Application running, you can create a Service and an Ingress to expose the Application.
+
+To do this using the UI, start by making sure that you have selected the Virtual Cluster and the Application and the application that you want to expose.
+
+Now open the Service tab, click Create Service and enter the following data, as shown in the screenshot below.
+
+- **Service: Name**: the name of the service, use `vamp-tutorial-service` for the tutorial 
+- **Ports: Name**: the name of the port, use `http` for the tutorial
+- **Ports: Number**: the port on which the service will be exposed, use `9090` for the tutorial
+- **Ports: Target Port**: the port on which the container accepts traffic, use `9090` for the tutorial
+- **Ports: Protocol**: the network protocol the service uses, use `TCP` for the tutorial
 
 ![](images/screen6.png)
 
-Then submit.
-This will create a new Service named vamp-tutorial-service that will be accessible internally to the Cluster.
-You can check the status of this Service through the ui by selecting Service - List Service
+Then click Submit, to the Service.
+
+If there were no errors, a Service named `vamp-tutorial-service` will be accessible internally to the Cluster.
+
+You can check the status of this Service using the UI by opening the Service tab, clicking on List Service and selecting `vamp-tutorial-service`.
 
 ![](images/screen7.png)
 
-From here you can edit and delete the Service or simply check its details, which is what we are going to do now.
+To check if the Service was created correctly, click Details. You also have the options to Edit or Delete the Service.
 
 ![](images/screen8.png)
 
-As you can see the Service has been created with the configuration provided.
-You can double-check it with kubectl by running the following command
+You can compare this with the information presented through `kubectl` by running the following command:
 
 ````
 kubectl get svc vamp-tutorial-service -n vamp-tutorial
