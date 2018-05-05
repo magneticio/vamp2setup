@@ -132,9 +132,11 @@ Most of them overlap completely with kubernetes entities, but some don't.
 
 In order to perform a canary release you need to have an Application with at least two Deployments installed in the cluster.
 
-However, before you can begin you need to set up a Virtual Cluster, or add the correct labels to an existing one.
+Before you can create an Application, you need to set up a Virtual Cluster, or add the correct labels to an existing namespace.
 
+### Creating a Virtual Cluster
 In this section we guide you through the creation of a new Virtual Cluster, but you should be able to use these steps as a basis for updating a pre-existing namespace.
+
 Lamia looks for some specific labels when detecting namespaces to be imported as Virtual Clusters.
 
 These labels are:
@@ -177,6 +179,7 @@ This will allow Lamia to send notifications to the specified Slack channel.
 
 ![](images/screen2.png)
 
+### Creating an Application
 Once the Virtual Cluster is set up, you need to sure that the Deployments for your Application are created and running.
 
 All deployments require a set of three labels:
@@ -184,7 +187,7 @@ All deployments require a set of three labels:
 - **deployment**: identifies the Deployment itself. This is used as a selector for the pods.
 - **version**: the version of the Application to which the Deployment belongs. This is used by Istio to dispatch traffic.
 
-You can then use the sample [deployment.yaml](samples/de.yaml) to create two new deployments with the same app label and different deployment and version labels.
+You can use the sample [deployment.yaml](samples/de.yaml) to create an Application with two Deployments with the same app label and different deployment and version labels.
 
 ````
 kubectl create -f deployment.yaml
@@ -296,6 +299,7 @@ spec:
 Assuming the command executed correctly, the deployments will be imported into Lamia.
 
 First, open Virtual Cluster, click on List Virtual Cluster and select `vamp-tutorial`.
+
 Now, you can open Application, click on List Application and you will be presented with the list of the available applications.
 
 ![](images/screen4.png)
@@ -304,15 +308,13 @@ Select `vamp-tutorial-app` to see the list of deployments you just created.
 
 ![](images/screen5.png)
 
-
 You can compare this with the information presented through `kubectl` by executing:
 
 ````
 kubectl get deploy -n=vamp-tutorial
 ````
 
-
-### Exposing your application
+### Exposing Your Application
 
 Now that you have your Application running and two Deployments for it you can create a Service and an Ingress to expose them.
 Again you can use the UI to achieve both tasks.
