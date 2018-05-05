@@ -529,17 +529,11 @@ This tool is not really part of Lamia, but it comes in handy to show the behavio
 
 ![](images/screen17.png)
 
-After you are done experimenting with this Policy you can return to the previous state by executing
-
-````
-kubectl replace -f deployments.yaml
-````
-
-and editing the Gateway back to normal.
+After you are done experimenting with this Policy you can edit the Gateway back to normal, but keep the deployments in the current state for the next steps.
 
 #### Metric based canary release
 
-But what if you wanted to use some different metric to control the behaviour of the policy?
+You managed to create a canary release Policy that takes into account the health of your application, but what if you wanted to use some different metric to control the behaviour of the policy?
 In order to do that you can edit the Gateway as shown below
 
 ![](images/screen18.png)
@@ -580,6 +574,12 @@ in the value field for the metric parameter
 
 As you can probably understand by looking at the expression above, this Policy will again replicate the behaviour of the previous Policies, but it will allow for much greater flexibility.
 You will now be able to specify different versions based on the conditions you are verifying and also to return no version at all (by returning nil) when you want the Policy to not apply any change.
+
+You can now keep on experimenting with the gateway, trying new things. Keep in mind that if you want to return the dpeloyments to the previous state (in which no errors are returned) you can do that by executing
+
+````
+kubectl replace -f deployments.yaml
+````
 
 ## API
 
