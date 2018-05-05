@@ -6,6 +6,9 @@ if ! type kubectl > /dev/null; then
     exit
 fi
 # Read Password
+echo "A password needed for the default user (root) to be used in the UI."
+echo "This password will be set as your root user password"
+echo "Password will be asked twice and it will not be visible while typing"
 echo "please enter the password for root user"
 echo -n Password:
 read -s password1
