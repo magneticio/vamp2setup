@@ -408,20 +408,20 @@ kubectl get routerule -n-vamp-tutorial
 ````
 
 This time you will be presented with two routerules vamp-tutorial-gateway-0 and vamp-tutorial-gateway-1.
-The reason for this is that or conditions cannot be handled by a single istio route rule, so it's necessary to create two with different priorities.
+The reason for this is that OR conditions cannot be handled by a single istio route rule, so it's necessary to create two with different priorities.
 You might also find yourself in a situation in which you want to specify different weights for each condtion.
 In order to do thta, click on the add button and you will be able to configure a new route with its own condition and set of weights.
 You can for example set the following condition:
 
 ````
-header "User-Agent" regex "^.*(Safari).*$"
+header "User-Agent" regex "^(?:(?!Chrome|Nexus 6P).)*$"
 ````
 
 The gateway configuration will then look like the one shown below.
 
 ![](images/screen20.png)
 
-By doing this you will have all requests with User-Agent containing "Chrome" or "Nexus 6P" equally split between version1 and version2, while all requests with User-Agent containing "Safari" will be sent to version1.
+By doing this you will have all requests with User-Agent containing "Chrome" or "Nexus 6P" equally split between version1 and version2, while all other requests will be sent to version1.
 Checking again the configuration on Kubernetes will yield three route rules this time, since the third condition has to be handled separately.
 **Mind the fact that, due to a known Istio issue, if you specify a route with a condition, then all routes must also have a condition. Otherwise the Gateway will not work properly.**
 
