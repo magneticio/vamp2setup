@@ -25,6 +25,19 @@ type: kubernetes.io/dockercfg
 data:
    .dockercfg: eyJodHRwczovL2luZGV4LmRvY2tlci5pby92MS8iOnsiYXV0aCI6ImRtRnRjREp3ZFd4c09uWmhiWEF5Y0hWc2JFWnNkWGc9In19
 ---
+kind: Service
+apiVersion: v1
+metadata:
+ name: vamp-hazelcast
+ namespace: vamp-system
+spec:
+ selector:
+   app: vamp
+ ports:
+ - protocol: TCP
+   port: 5701
+   targetPort: 5701
+---
 apiVersion: v1
 kind: Secret
 metadata:
@@ -43,7 +56,7 @@ metadata:
   name: vamp
   namespace: vamp-system
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: vamp
@@ -63,11 +76,13 @@ spec:
              secretKeyRef:
                 name: vamprootpassword
                 key: password
-        image: magneticio/vamp2:0.1.49
+        image: magneticio/vamp2:0.1.65-SNAPSHOT
         imagePullPolicy: IfNotPresent
         name: vamp
         ports:
         - containerPort: 8888
+          protocol: TCP
+        - containerPort: 5701
           protocol: TCP
         resources: {}
         terminationMessagePath: /dev/termination-log
