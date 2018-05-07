@@ -409,39 +409,46 @@ We haven't set any routing conditions, so you will see a singe route rule named 
 
 ### Adding Routing Conditions
 
-For example, let's try editing our gateway.
-Select Gateway - Gateway List and click on edit.
-Now specify the following condition:
+So, let's edit the gateway and add a condition.
 
+Open the Gateway tab, click List Gateway, select the gateway and click on edit.
+
+Then add the following condition and hit submit:
 ````
 header "User-Agent" regex "^.*(Chrome).*$"  or header "User-Agent" regex "^.*(Nexus 6P).*$"
 ````
 
-and hit submit.
-This will tell the gateway to let into the service only the requests with a user agent containing either "Chrome" or "Nexus 6P".
-You can easily test this from a browser or with any tool that allows you to send http requests towards your service.
-You can now check what happened on kubernetes by running again the same command as before:
+This will tell the gateway to only pass requests to the service when the `User-Agent` HTTP header contains either "Chrome" or "Nexus 6P".
 
+You can test the effect of this condition from a browser or with a tool like `cURL` that allows you to send HTTP requests towards your service.
+
+Now, if you retrieve route rules using `kubectl` by running the following command:
 ````
-kubectl get routerule -n-vamp-tutorial
+kubectl get routerule -n=vamp-tutorial
 ````
 
-This time you will be presented with two routerules vamp-tutorial-gateway-0 and vamp-tutorial-gateway-1.
-The reason for this is that OR conditions cannot be handled by a single istio route rule, so it's necessary to create two with different priorities.
-You might also find yourself in a situation in which you want to specify different weights for each condtion.
-In order to do thta, click on the add button and you will be able to configure a new route with its own condition and set of weights.
-You can for example set the following condition:
+This time you will see two route rules, `vamp-tutorial-gateway-0` and `vamp-tutorial-gateway-1`.
 
+The reason for this is that OR conditions cannot be handled by a single Istio route rule, so it's necessary to create two rules with different priorities.
+
+You can also specify different weights for each condtion.
+
+To do this, edit the Gateway again and this time click on the Add button to create a new route with its own condition and set of weights.
+Then add the following condition:
 ````
 header "User-Agent" regex "^(?:(?!Chrome|Nexus 6P).)*$"
 ````
+
+And set the Version to `version1` and Weight to `100`
 
 The gateway configuration will then look like the one shown below.
 
 ![](images/screen20.png)
 
-By doing this you will have all requests with User-Agent containing "Chrome" or "Nexus 6P" equally split between version1 and version2, while all other requests will be sent to version1.
-Checking again the configuration on Kubernetes will yield three route rules this time, since the third condition has to be handled separately.
+The effect of adding this new route is that requests with a `User-Agent` HTTP header that contains either "Chrome" or "Nexus 6P" will be equally split between `version1` and `version2`, while all other requests will be sent to `version1`.
+
+If you check the route rules using `kubectl`, you'll notice that a third rule has been added.
+
 **Mind the fact that, due to a known Istio issue, if you specify a route with a condition, then all routes must also have a condition. Otherwise the Gateway will not work properly.**
 
 Let's now edit again the gateway and remove the conditions you just specified, before moving on to the next step.
