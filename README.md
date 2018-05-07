@@ -373,31 +373,38 @@ http://1.2.3.4
 ````
  
 ### Creating a Gateway
-Since you just created a standard Service on top of your application, for the time being all request will be distributed equally among the two Deployments that are part of the application.
-To change that behaviour it is necessary to create a gateway.
+One feature of a Gateway is that it can be used to regulate access to the different versions of an Application.
 
-In order to regulate access to the different versions of your application you now need to create a Gateway for it.
-So, select Gateway - Create Gateway and fill out the form with the data presented below, then hit submit.
+The Service we created to expose `vamp-tutorial-app` distributes all request equally between the two Deployments that are part of the application. To change this behaviour we need to create a Gateway.
+
+Open the Gateway tab, click Create Gateway and enter the following data, as shown in the screenshot below.
 
 ![](images/screen11.png)
 
-You can check the status of the Gateway by clicking on Gateway - Gateway List.
-This will display the list of Gateways and by selecting the one you just created you will be able to see its current configuration, as shown below.
+Then click Submit, to create the Gateway.
+
+If there were no errors, a Gateway named `vamp-tutorial-gateway` will now be available.
+
+You can check the configuration of this Gateway using the UI by opening the Gateway tab, clicking on List Gateway and selecting `vamp-tutorial-gateway`. You should see a configuration similar to the one shown below.
 
 ![](images/screen12.png)
 
-The current configuration will tell istio to distribute traffic equally among the two versions, so, for the time being you will not be able to see any difference.
-You can however change the weights as you like and experiment with different settings.
+This configuration tells Istio to distribute traffic equally (50%/50%) among the two versions.
+
+This is the same behaviour as the Service, so you won't be able to see any difference in behaviour until you start experimenting with different weights.
+
 **Keep in mind that the weights should always add up to 100, otherwise the configuration will not be applied.**
-Checking the Gateway status through kubectl can be a bit harder than the previous scenarios.
-While a Gateway is a single entity in Lamia it can correspond, depending on its condition, to multiple Istio Route Rules on kubernetes.
-Hence you should runt he following commad:
+
+Checking the Gateway status through `kubectl` is a bit harder than it was with the previous configuration steps. Whilst a Gateway is a single entity in Lamia, depending on the routing conditions, it can correspond to multiple Istio Route Rules.
+
+You can retrieve route rules using `kubectl` by running the following command:
 
 ````
-kubectl get routerule -n-vamp-tutorial
+kubectl get routerule -n=vamp-tutorial
 ````
 
-Thi will list all the route rules in the namespace. 
+This will list all the route rules in the namespace. 
+
 In this first example we didn't specify any condition, so you will see a singe route rule named vamp-tutorial-gateway-0, but keep in mind you could get multiple result, should you specify complex conditions.
 For example, let's try editing our gateway.
 Select Gateway - Gateway List and click on edit.
