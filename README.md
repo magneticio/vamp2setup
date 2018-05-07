@@ -330,7 +330,7 @@ Now open the Service tab, click Create Service and enter the following data, as 
 
 ![](images/screen6.png)
 
-Then click Submit, to the Service.
+Then click Submit, to create the Service.
 
 If there were no errors, a Service named `vamp-tutorial-service` will be accessible internally to the Cluster.
 
@@ -348,33 +348,33 @@ You can compare this with the information presented through `kubectl` by running
 kubectl get svc vamp-tutorial-service -n vamp-tutorial
 ````
 
-It's now time to expose the Service externally by creating an Ingress.
-As you can probably imagine by now, you can achieve that by selecting Ingress - Create Ingress from the bar on the left and filling the form with the values shown below.
+Now it's time to expose the Service externally by creating an Ingress.
+
+Open the Ingress tab, click Create Ingress and enter the following data, as shown in the screenshot below.
 
 ![](images/screen9.png)
 
-Then hit submit.
-By accessing Ingress - Ingress List you will be able to check the new Ingress and also retrieve its IP.
+Then click Submit, to create the Service.
+
+If there were no errors, the `vamp-tutorial-service` will now be available externally.
+
+To find the external IP address the `vamp-tutorial-ingress` is using, open the Ingress tab and click on List Ingress.
 
 ![](images/screen10.png)
 
-The same can be achieved through kubectl by running
-
+You can also retrieve this information using `kubectl` by running the following command:
 ````
 kubectl get ing vamp-tutorial-ingress -n vamp-tutorial
 ````
 
-When you have found the ip you can just call
-
+If the external IP address is `1.2.3.4` then you can access the service using the following URL:
 ````
 http://1.2.3.4
 ````
-
-by replacing the example ip with your own you will get a response from the service. 
+ 
+### Creating a Gateway
 Since you just created a standard Service on top of your application, for the time being all request will be distributed equally among the two Deployments that are part of the application.
 To change that behaviour it is necessary to create a gateway.
-
-### Creating a Gateway
 
 In order to regulate access to the different versions of your application you now need to create a Gateway for it.
 So, select Gateway - Create Gateway and fill out the form with the data presented below, then hit submit.
