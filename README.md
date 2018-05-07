@@ -375,7 +375,7 @@ http://1.2.3.4
 ### Creating a Gateway
 One feature of a Gateway is that it can be used to regulate access to the different versions of an Application.
 
-The Service we created to expose `vamp-tutorial-app` distributes all request equally between the two Deployments that are part of the application. To change this behaviour we need to create a Gateway.
+The Service we created to expose `vamp-tutorial-app` distributes all request equally between the two Deployments that are part of the application. To change this behaviour we need to create a Gateway in front of the Service.
 
 Open the Gateway tab, click Create Gateway and enter the following data, as shown in the screenshot below.
 
@@ -405,7 +405,10 @@ kubectl get routerule -n=vamp-tutorial
 
 This will list all the route rules in the namespace. 
 
-In this first example we didn't specify any condition, so you will see a singe route rule named vamp-tutorial-gateway-0, but keep in mind you could get multiple result, should you specify complex conditions.
+We haven't set any routing conditions, so you will see a singe route rule named `vamp-tutorial-gateway-0`.
+
+### Adding Routing Conditions
+
 For example, let's try editing our gateway.
 Select Gateway - Gateway List and click on edit.
 Now specify the following condition:
