@@ -34,7 +34,7 @@ This Guide will help you set up Lamia on a kubernetes cluster.
 
 ### Installation steps
 
-git clone this repo or download [setup.zip](https://github.com/magneticio/vamp2setup/releases/download/pre0.0.1/setup.zip)
+git clone this repo or download [setup zip](https://github.com/magneticio/vamp2setup/archive/0.1.96.zip)
 
 ```
 git clone https://github.com/magneticio/vamp2setup.git
