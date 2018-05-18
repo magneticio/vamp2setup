@@ -41,8 +41,8 @@ git clone https://github.com/magneticio/vamp2setup.git
 ```
 or
 ```
-wget https://github.com/magneticio/vamp2setup/releases/download/pre0.0.1/setup.zip
-unzip setup.zip
+wget https://github.com/magneticio/vamp2setup/archive/0.1.96.zip
+unzip 0.1.96.zip
 ```
 
 Run:
