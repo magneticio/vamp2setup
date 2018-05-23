@@ -38,6 +38,58 @@ spec:
    port: 5701
    targetPort: 5701
 ---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: vamp-mongodb
+    deployment: vamp-mongodb
+  name: vamp-mongodb
+  namespace: vamp-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vamp-mongodb
+      deployment: vamp-mongodb
+  template:
+    metadata:
+      labels:
+        app: vamp-mongodb
+        deployment: vamp-mongodb
+    spec:
+      containers:
+      - env:
+        image: mongo:3.7.9
+        imagePullPolicy: IfNotPresent
+        name: vamp-mongodb
+        ports:
+        - containerPort: 27017
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      imagePullSecrets:
+        - name: vamp2imagepull
+---
+kind: Service
+apiVersion: v1
+metadata:
+ name: vamp-mongodb
+ namespace: vamp-system
+spec:
+ selector:
+   app: vamp-mongodb
+ ports:
+ - protocol: TCP
+   port: 27017
+   targetPort: 27017
+---
 apiVersion: v1
 kind: Secret
 metadata:
@@ -76,7 +128,7 @@ spec:
              secretKeyRef:
                 name: vamprootpassword
                 key: password
-        image: magneticio/vamp2:0.1.96
+        image: magneticio/vamp2:0.1.101-SNAPSHOT
         imagePullPolicy: IfNotPresent
         name: vamp
         ports:
