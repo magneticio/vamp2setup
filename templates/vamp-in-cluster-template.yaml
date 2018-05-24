@@ -38,57 +38,66 @@ spec:
    port: 5701
    targetPort: 5701
 ---
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  labels:
-    app: vamp-mongodb
-    deployment: vamp-mongodb
-  name: vamp-mongodb
-  namespace: vamp-system
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: vamp-mongodb
-      deployment: vamp-mongodb
-  template:
-    metadata:
-      labels:
-        app: vamp-mongodb
-        deployment: vamp-mongodb
-    spec:
-      containers:
-      - env:
-        image: mongo:3.7.9
-        imagePullPolicy: IfNotPresent
-        name: vamp-mongodb
-        ports:
-        - containerPort: 27017
-          protocol: TCP
-        resources: {}
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
-      dnsPolicy: ClusterFirst
-      restartPolicy: Always
-      schedulerName: default-scheduler
-      securityContext: {}
-      terminationGracePeriodSeconds: 30
-      imagePullSecrets:
-        - name: vamp2imagepull
----
-kind: Service
 apiVersion: v1
+kind: Service
 metadata:
  name: vamp-mongodb
  namespace: vamp-system
 spec:
+ clusterIP: None
  selector:
    app: vamp-mongodb
  ports:
- - protocol: TCP
-   port: 27017
+ - port: 27017
    targetPort: 27017
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  namespace: vamp-system
+  name: mongo
+spec:
+  serviceName: vamp-mongodb
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: vamp-mongodb
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: mongo
+          image: mongo
+          command:
+            - mongod
+            - "--replSet"
+            - rs0
+            - "--bind_ip"
+            - 0.0.0.0
+            - "--smallfiles"
+            - "--noprealloc"
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: mongo-persistent-storage
+              mountPath: /data/db
+        - name: mongo-sidecar
+          image: cvallance/mongo-k8s-sidecar
+          env:
+            - name: MONGO_SIDECAR_POD_LABELS
+              value: "app=vamp-mongodb"
+            - name: KUBERNETES_MONGO_SERVICE_NAME
+              value: "vamp-mongodb"
+  volumeClaimTemplates:
+  - metadata:
+      name: mongo-persistent-storage
+      annotations:
+        volume.beta.kubernetes.io/storage-class: "standard"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
 ---
 apiVersion: v1
 kind: Secret
@@ -128,7 +137,7 @@ spec:
              secretKeyRef:
                 name: vamprootpassword
                 key: password
-        image: magneticio/vamp2:0.1.101-SNAPSHOT
+        image: magneticio/vamp2:0.1.123-SNAPSHOT
         imagePullPolicy: IfNotPresent
         name: vamp
         ports:
