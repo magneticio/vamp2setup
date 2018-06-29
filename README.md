@@ -423,6 +423,7 @@ If the external IP address is `1.2.3.4` then you can access the service using th
 http://1.2.3.4
 ````
 
+Mind the fact that this link will currently be the same for every Gateway you create, since it referes to an Istio controlled load blanced service which is used by all Gateways to expose services.
 By clicking on the url you will notice that the Service is still not reachable. 
 The reason for that is that, unlike a Kuebrnetes Ingress, Istio Gateways need a Virtual Service bound to them in order to work properly.
 Don't worry though, we will get to that soon.
@@ -524,7 +525,7 @@ Lamia Virtual Services allow users to specify Policies, i.e. automated processes
 When specifying a new Policy of this kind there are several options, let's start with the simplest one.
 Select Virtual Service - List Virtual Service - edit and specify the values shown below in the Policies section, then submit.
 
-![](images/screen13.png)
+![](images/screen16.png)
 
 What you just did will trigger an automated process that will gradually shift the weights towards your target (version2 in this case).
 You will periodically get notifications that show the updates being applied to the virtual service.
@@ -538,7 +539,7 @@ Go back to the edit screen, remove the policy and reset the weights to 50/50, th
 Let's say for example you want to rerun the previous scenario, but checking the healthiness of the two versions before applying changes.
 You can esaily achieve that by editing the Virtual Service as shown in the next image
 
-![](images/screen14.png)
+![](images/screen17.png)
 
 To verify that everything is working as expected just run this command
 
@@ -605,26 +606,19 @@ spec:
 This will inject errors on 30% of the requests going towards deployment2 and, consequently, cause the Policy to shift weights towards version1, despite the fact that version2 is the declared target.
 Obviously nothing will happen unless you actually send requests to the service.
 There's an easy way to do that thanks to the specific image we are using for this tutorial.
-Go to Gateway - List Gateway and open the details for the Gateway you previously created.
-You will get the following screen
+Go to Gateway - List Gateway and open the details for the Gateway you previously created and click the link to your Service and add /ui at the end to get to this ui.
 
-![](images/screen15.png)
-
-As you can see there's a link to your service. 
-Mind the fact that this link willc urrently be the same for every Gateway you create, since it referes to an Istio controlled load blanced service which is used by all Gateways to expose services.
-Click it and add /ui at the end to get to this ui.
-
-![](images/screen16.png)
+![](images/screen18.png)
 
 Now just input the url to your service ( http://vamp-tutorial-service:9090 ) into the empty field and this will both trigger continuous requests towards the service and show the real distribution over the two deployments, including the errors (highlighted in red).
 This tool is not really part of Lamia, but it comes in handy to test the behaviour of Virtual Services and Istio.
 
-![](images/screen17.png)
+![](images/screen19.png)
 
 You can check the distribution of traffic both from the tool itself or by selecting Virtual Service - Virtual Service List and clicking on metrics.
 This will present you with the interface shown below.
 
-![](images/screen.png)
+![](images/screen20.png)
 
 After you are done experimenting with this Policy you can edit the Virtual Service back to normal, but keep the deployments in the current state for the next steps.
 
@@ -633,7 +627,7 @@ After you are done experimenting with this Policy you can edit the Virtual Servi
 You managed to create a canary release Policy that takes into account the health of your application, but what if you wanted to use some different metric to control the behaviour of the policy?
 In order to do that you can edit the Virtual Service as shown below
 
-![](images/screen18.png)
+![](images/screen21.png)
 
 As you can see besides changing the type of Policy you also need to specify the **metric** parameter which will tell Lamia which metric or combination of metric to use.
 In this scenario the value we are using is:
@@ -667,7 +661,7 @@ if ( ( metric "version1" "external_upstream_rq_2xx" / metric "version1" "upstrea
 
 in the value field for the metric parameter
 
-![](images/screen19.png)
+![](images/screen22.png)
 
 As you can probably understand by looking at the expression above, this Policy will again replicate the behaviour of the previous Policies, but it will allow for much greater flexibility.
 You will now be able to specify different versions based on the conditions you are verifying and also to return no version at all (by returning nil) when you want the Policy to not apply any change.
