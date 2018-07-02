@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    istio-injection: enabled
+    vamp-managed: "true"
+    cluster: default
+    project: default
+  name: vamp-demo
+spec:
+  finalizers:
+  - kubernetes
+status:
+  phase: Active

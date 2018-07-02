@@ -21,6 +21,7 @@ This Guide will help you set up Lamia on a kubernetes cluster.
          * [Performing a Canary Release](#performing-a-canary-release-1)
             * [Metric based canary release](#metric-based-canary-release)
             * [Custom canary release](#custom-canary-release)
+         * [Creating an Experiment](#creating-an-experiment)   
       * [API](#api)
 
 ## Installation
@@ -194,6 +195,7 @@ These labels are:
 Provided the first two labels are set, then once Lamia is deployed, it will import all the resources from a namespace into the current Project and Cluster and add the two optinal labels to the namespace if they are missing.
 
 You can use the sample [namespace.yaml](samples/namespace.yaml) to create a Virtual Cluster called `vamp-tutorial`.
+
 ````
 kubectl create -f namespace.yaml
 ````
@@ -529,7 +531,7 @@ Select Virtual Service - List Virtual Service - edit and specify the values show
 
 What you just did will trigger an automated process that will gradually shift the weights towards your target (version2 in this case).
 You will periodically get notifications that show the updates being applied to the virtual service.
-As usual you will be able to check the weights status from the Gateway's detail.
+As usual you will be able to check the weights status from the Virtual Service's detail.
 It is also possible to configure the weight change at each update. The default value is 10, but you can specify it by adding the "step" parameter wth the desired value.
 
 This is, of course, a pretty limited example. Usually you would like to put some form of rule to decide which version should prevail.
@@ -656,7 +658,7 @@ To do that you would have to use the last type of Policy available at the moment
 by putting the condition
 
 ````
-if ( ( metric "version1" "external_upstream_rq_2xx" / metric "version1" "upstream_rq_total" ) > ( metric "version2" "external_upstream_rq_2xx" / metric "version2" "upstream_rq_total" ) ) { result = version1; } else if ( ( metric "version1" "external_upstream_rq_2xx" / metric "version1" "upstream_rq_total" ) < ( metric "version2" "external_upstream_rq_2xx" / metric "version2" "upstream_rq_total" ) ) { result = version2; } else { result = nil; } result
+if ( ( metric "vamp-tutorial-service" 9090 "subset1" "internal_upstream_rq_2xx" / metric "vamp-tutorial-service" 9090 "subset1" "upstream_rq_total" ) > ( metric "vamp-tutorial-service" 9090 "subset2" "internal_upstream_rq_2xx" / metric "vamp-tutorial-service" 9090 "subset2" "upstream_rq_total" ) ) { result = "vamp-tutorial-service 9090 subset1"; } else if ( ( metric "vamp-tutorial-service" 9090 "subset1" "internal_upstream_rq_2xx" / metric "vamp-tutorial-service" 9090 "subset1" "upstream_rq_total" ) < ( metric "vamp-tutorial-service" 9090 "subset2" "internal_upstream_rq_2xx" / metric "vamp-tutorial-service" 9090 "subset2" "upstream_rq_total" ) ) { result = "vamp-tutorial-service 9090 subset2"; } else { result = nil; } result
 ````
 
 in the value field for the metric parameter
@@ -671,6 +673,69 @@ You can now keep on experimenting with the Virtual Service, trying new things. K
 ````
 kubectl replace -f deployments.yaml
 ````
+
+### Creating an Experiment
+
+Experiments are a new feature introduced with Lamia 0.2.0.
+They allow to quickly set up virtual services for A/B testing of different versions.
+In order to test Experiments you can execute [demo-setup.sh](samples/experiment-demo/demo-setup.sh).
+If everything works correctly, this will produce the following output
+
+````
+namespace "vamp-demo" created
+deployment "deployment1" created
+deployment "deployment2" created
+````
+
+At this point you will have a new namespace named vamp-demo containing two versions of a simple e-commerce, that wil be imported by Lamia into a single application.
+Now, before you can proceed with setting up the Experiment you will first have to create a Service a Detsination Rule and a Gateway for the Experment to use.
+Since you already did that before in previous steps of this tutorial, you shoul be able to go through it quickly by referring to the configurations shown below.
+**Mind the fact that before creaing the new Gateway you should delete the one you created for the previous steps of the tutorial.
+Since we are keeping a very generic configuration, they might otherwise end up conflicting with each other.**
+
+![](images/screen23.png)
+
+![](images/screen24.png)
+
+![](images/screen25.png)
+
+Once everything is ready you can set up the Experiment itself.
+Select Create Experiment and submit the following configuration.
+
+![](images/screen26.png)
+
+To make a bit clearer what is going to happen when you submit let's first go through the purpose of each field:
+
+- **Service Name**: the name of the service on which you want to run the A/B testing.
+- **Service Port**: the Service port to use.
+- **Gateway Name**: the Gatway trhough which the Service will be exposed.
+- **Period in minutes**: the time interval in minutes after which periodic updates to the configuration will happen.
+- **Step**: the amount by which route's weights will shift at each update.
+- **Tags**: at the moment tags are just descriptive values for a specific version of the service.
+- **Subset**: the subset of the service.
+- **Target**: the url that we want the users to reach to consider the test a success.
+
+When the form has been correctly filled and submitted the experiment will first save its configuration and then create an Experiment managed Virtual Service with the same name.
+By clicking on List Virtual Service you will be able to see this new Virtual Service and check its configuration, although you won't be able to change it or delete it directly.
+Below you can see how ths configuraiton should look:
+
+![](images/screen27.png)
+
+We realise this configuration can feel rather obscure, so let's walk through it together.
+The Virtual Service defines three routes. The first two are easy to understand: they each lead to one of the deployed versions. The third one, instead, is evenly load balancing between two versions of a Cookie Server.
+The purpose of this configuration is to direct new visitors towards the Cookie Server which will then set cookies identifying them as a specific user and assigning them to one of the configured subsets.
+Once this is done, the Cookie Server redirects the user back to the original url, sending him back through the Virtual Services. This time, however, having a Subset Cookie, one of the conditions set on the first two routes applies and the user is forwarded to a specific version of the landing page. This is seamless in browsers, so users don't experience any interruption, and adds a neglectable overhead, since it affect only one call per user .
+Thanks to our reliance on cookies, we are able to provide users with a consistent experience while continuing our test, meaning that subsequent requests coming from the same user in a short period of time will always go to the same version.
+Depending on the test results, the policy defined on the Virtual Service will then move more users to more successful version, i.e. versions with a better ratio of users that reached the target over total number of users that reached the landing page.
+This is of course achieved by changing the weights of the Cookie Servers routes according to the Step value defined in the Experiment configuration.
+
+Besides the Virtual Service itself, the Experiment is also managing a set of other resources:
+
+- one Cookie Server Deployment per Subset involved in the test.
+- a Service definition grouping the Cookie Servers.
+- a Destination Rule bound to the Cookie Servers' Service.
+
+All these resources are not visible in Lamia and will be automatically deleted when the Experiment is removed.
 
 ## API
 
