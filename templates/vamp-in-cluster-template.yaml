@@ -117,7 +117,7 @@ metadata:
   name: vamp
   namespace: vamp-system
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: vamp
@@ -137,7 +137,7 @@ spec:
              secretKeyRef:
                 name: vamprootpassword
                 key: password
-        image: magneticio/vamp2:0.1.262-valce-SNAPSHOT
+        image: magneticio/vamp2:0.2.0
         imagePullPolicy: IfNotPresent
         name: vamp
         ports:
