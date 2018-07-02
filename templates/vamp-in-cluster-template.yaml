@@ -137,7 +137,7 @@ spec:
              secretKeyRef:
                 name: vamprootpassword
                 key: password
-        image: magneticio/vamp2:0.1.405-valce-SNAPSHOT
+        image: magneticio/vamp2:0.1.406-valce-SNAPSHOT
         imagePullPolicy: IfNotPresent
         name: vamp
         ports:

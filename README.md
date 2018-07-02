@@ -3,7 +3,7 @@
 Lamia is a single Docker container that provides a REST API and React-based UI that you can use to:
 
 - gradually roll-out a new version of a service;
-- automatically rollback to the original version, in the case of errors; and
+- automatically rollback to the original version, in the case of errors and
 - apply routing conditions.
 
 This Guide will help you set up Lamia on a kubernetes cluster.
@@ -56,7 +56,7 @@ Enter password when asked, password will not be visible and it will be asked twi
 Installer will tell you where to connect like:
 
 ```
-use http://111.122.133.144:8888 to connect
+use http://111.222.333.444:8888/ui/#/login to connect
 ```
 
 If you need to retrieve the IP afterwards you can do it via kubectl
@@ -65,11 +65,7 @@ If you need to retrieve the IP afterwards you can do it via kubectl
 kubectl get svc vamp -n=vamp-system
 ```
 
-Copy the url and paste on your browser and add /ui/#/login
-
-http://111.122.133.144:8888/ui/#/login 
-
-to login and start using.
+Copy the url and paste on your browser to login and start using.
 
 The default username is root.
 
@@ -155,7 +151,7 @@ and the following int he logging namespace
 
 If any of these resources are missing, Lamia will try to install Istio.
 
-**Keep in mind that if you have pre-existing deployments, then after the installation is complete, you will need to restart them or trigger a rolling update in order for the Istio Sidecar to be injected.**
+**Keep in mind that if you have pre-existing deployments, then, after the installation is complete, you will need to restart them or trigger a rolling update in order for the Istio Sidecar to be injected.**
 
 ## Terminology
 
@@ -172,6 +168,7 @@ Most of them overlap completely with kubernetes entities, but some don't.
 - **Destination Rule**: an Istio DestinationRule, which defines a subset of Deployments of one or several versions, based on common labels
 - **Virtual Service**: an Istio VirtualService, which handles routing of requests towards Services
 - **Policy**: an automated process that periodically performs actions over an entity. Currently only used for Gateways. For more details refer to the [Performing a canary release](#performing-a-canary-release) section. 
+- **Experiment**: an automated processmanaging several resources involved in A/B testing a specific Service.
 
 ## Performing a canary release
 
@@ -435,11 +432,11 @@ First of all, however, you need to setup a Destination Rule for you Service.
 
 A Destination Rule is an Istio resource that abstracts from the set of labels defined on the Deployments underlying a Service, by defining one or more Subsets.
 Subsets are then referenced by Virtual Services in order to route traffic through the Service.
-You can create a new Destination Rule through Lamia by selecting DestinationRule - Create DestinationRule and fillign the presented form as shown below:
+You can create a new Destination Rule through Lamia by selecting Create DestinationRule and filling the presented form as shown below:
 
 ![](images/screen11.png)
 
-When you filled in the required configuration, just click submit and then check the result in DestinationRule - List DestinationRule - details.
+When you filled in the required configuration, just click submit and then check the result in List DestinationRule - details.
 
 ![](images/screen12.png)
 
@@ -477,15 +474,19 @@ This is the same behaviour as the Service, so you won't be able to see any diffe
 **Keep in mind that the weights should always add up to 100, otherwise the configuration will not be applied.**
 
 You can also retrieve the virtual service using `kubectl` by running the following command:
+
 ````
 kubectl get virtualservice vamp-tutorial-virtual-service -n vamp-tutorial
 ````
+
+You might have noticed that in the configuration, besides the Gateway you created, there's also another one, named mesh.
+Adding this Gateway enables the Virtual Service to be exposed internally.
 
 ### Adding Routing Conditions
 
 Let's try now adding more complex conditions to regulate the traffic on the Service.
 Inorder to do that you will  have to edit the Virtual Service configuration you just created.
-Select Virtual Service - Virtual Service List and click on edit.
+Select List Virtual Service and click on edit.
 Now specify the following condition:
 
 ````
@@ -525,7 +526,7 @@ Let's now edit again the gateway and remove the conditions you just specified an
 It's time to try something a bit more complex.
 Lamia Virtual Services allow users to specify Policies, i.e. automated processes than can alter the Virtual Service configuration over a period of time.
 When specifying a new Policy of this kind there are several options, let's start with the simplest one.
-Select Virtual Service - List Virtual Service - edit and specify the values shown below in the Policies section, then submit.
+Select List Virtual Service - edit and specify the values shown below in the Policies section, then submit.
 
 ![](images/screen16.png)
 
@@ -608,7 +609,7 @@ spec:
 This will inject errors on 30% of the requests going towards deployment2 and, consequently, cause the Policy to shift weights towards version1, despite the fact that version2 is the declared target.
 Obviously nothing will happen unless you actually send requests to the service.
 There's an easy way to do that thanks to the specific image we are using for this tutorial.
-Go to Gateway - List Gateway and open the details for the Gateway you previously created and click the link to your Service and add /ui at the end to get to this ui.
+Go to List Gateway and open the details for the Gateway you previously created and click the link to your Service and add /ui at the end to get to this ui.
 
 ![](images/screen18.png)
 
@@ -617,7 +618,7 @@ This tool is not really part of Lamia, but it comes in handy to test the behavio
 
 ![](images/screen19.png)
 
-You can check the distribution of traffic both from the tool itself or by selecting Virtual Service - Virtual Service List and clicking on metrics.
+You can check the distribution of traffic both from the tool itself or by selecting Virtual Virtual Service List and clicking on metrics.
 This will present you with the interface shown below.
 
 ![](images/screen20.png)
@@ -631,22 +632,22 @@ In order to do that you can edit the Virtual Service as shown below
 
 ![](images/screen21.png)
 
-As you can see besides changing the type of Policy you also need to specify the **metric** parameter which will tell Lamia which metric or combination of metric to use.
+As you can see besides changing the type of Policy you also need to specify the **metric** parameter which will tell Lamia which metric or combination of metrics to use.
 In this scenario the value we are using is:
 
 ````
-external_upstream_rq_2xx / upstream_rq_total
+internal_upstream_rq_2xx / upstream_rq_total
 ````
 
 In this case we are basically replicating the behaviour from the health based canary release by calculating the ratio of successful responses over the total number of requests
 Metrics names are loosely based on Prometheus metrics names stored by Envoy (they are usually the last part of the metric name).
 Some of the available metrics are:
 
-- **external_upstream_rq_200**
-- **external_upstream_rq_2xx**
-- **external_upstream_rq_500**
-- **external_upstream_rq_503**
-- **external_upstream_rq_5xx**
+- **internal_upstream_rq_200**
+- **internal_upstream_rq_2xx**
+- **internal_upstream_rq_500**
+- **internal_upstream_rq_503**
+- **internal_upstream_rq_5xx**
 - **upstream_rq_total**
 
 This type of Policy, however, comes with a limitation: you can only specify one condition, that is "select the version with the best metric".
@@ -655,7 +656,7 @@ What if you wanted to have more complex condition?
 #### Custom canary release
 
 To do that you would have to use the last type of Policy available at the moment and configure the Gateway as shown below,
-by putting the condition
+by specifying the condition
 
 ````
 if ( ( metric "vamp-tutorial-service" 9090 "subset1" "internal_upstream_rq_2xx" / metric "vamp-tutorial-service" 9090 "subset1" "upstream_rq_total" ) > ( metric "vamp-tutorial-service" 9090 "subset2" "internal_upstream_rq_2xx" / metric "vamp-tutorial-service" 9090 "subset2" "upstream_rq_total" ) ) { result = "vamp-tutorial-service 9090 subset1"; } else if ( ( metric "vamp-tutorial-service" 9090 "subset1" "internal_upstream_rq_2xx" / metric "vamp-tutorial-service" 9090 "subset1" "upstream_rq_total" ) < ( metric "vamp-tutorial-service" 9090 "subset2" "internal_upstream_rq_2xx" / metric "vamp-tutorial-service" 9090 "subset2" "upstream_rq_total" ) ) { result = "vamp-tutorial-service 9090 subset2"; } else { result = nil; } result
@@ -668,7 +669,7 @@ in the value field for the metric parameter
 As you can probably understand by looking at the expression above, this Policy will again replicate the behaviour of the previous Policies, but it will allow for much greater flexibility.
 You will now be able to specify different versions based on the conditions you are verifying and also to return no version at all (by returning nil) when you want the Policy to not apply any change.
 
-You can now keep on experimenting with the Virtual Service, trying new things. Keep in mind that if you want to return the dpeloyments to the previous state (in which no errors are returned) you can do that by executing
+You can now keep on experimenting with the Virtual Service, trying new things. Keep in mind that if you want to return the deployments to the previous state (in which no errors are returned) you can do that by executing
 
 ````
 kubectl replace -f deployments.yaml
@@ -688,9 +689,9 @@ deployment "deployment2" created
 ````
 
 At this point you will have a new namespace named vamp-demo containing two versions of a simple e-commerce, that wil be imported by Lamia into a single application.
-Now, before you can proceed with setting up the Experiment you will first have to create a Service a Detsination Rule and a Gateway for the Experment to use.
-Since you already did that before in previous steps of this tutorial, you shoul be able to go through it quickly by referring to the configurations shown below.
-**Mind the fact that before creaing the new Gateway you should delete the one you created for the previous steps of the tutorial.
+Now, before you can proceed with setting up the Experiment you will first have to create a Service a Destination Rule and a Gateway for the Experment to use.
+Since you already did that in the previous steps of this tutorial, you should be able to go through it quickly by referring to the configurations shown below.
+**Mind the fact that before cretaing the new Gateway and Virtual Service you should delete the ones you created for the previous steps of the tutorial.
 Since we are keeping a very generic configuration, they might otherwise end up conflicting with each other.**
 
 ![](images/screen23.png)
@@ -704,11 +705,11 @@ Select Create Experiment and submit the following configuration.
 
 ![](images/screen26.png)
 
-To make a bit clearer what is going to happen when you submit let's first go through the purpose of each field:
+To clarify a bit what is going to happen when you submit, let's first go through the purpose of each field:
 
-- **Service Name**: the name of the service on which you want to run the A/B testing.
+- **Service Name**: the name of the Service on which you want to run the A/B testing.
 - **Service Port**: the Service port to use.
-- **Gateway Name**: the Gatway trhough which the Service will be exposed.
+- **Gateway Name**: the Gatway through which the Service will be exposed.
 - **Period in minutes**: the time interval in minutes after which periodic updates to the configuration will happen.
 - **Step**: the amount by which route's weights will shift at each update.
 - **Tags**: at the moment tags are just descriptive values for a specific version of the service.
