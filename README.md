@@ -156,7 +156,7 @@ If any of these resources are missing, Lamia will try to install Istio.
 ## Terminology
 
 To get a better understanding of how Lamia works you should keep in mind the meaning of the following terms.
-Most of them overlap completely with kubernetes entities, but some don't.
+Most of them overlap completely with Kubernetes or Istio entities, but some don't.
 
 - **Project**: a project is a grouping of clusters. This will automatically be created by Lamia.
 - **Cluster**: a cluster corresponds to a specific Kubernets clusters. Just like the Project, this will automatically be created by Lamia.
@@ -168,7 +168,7 @@ Most of them overlap completely with kubernetes entities, but some don't.
 - **Destination Rule**: an Istio DestinationRule, which defines a subset of Deployments of one or several versions, based on common labels
 - **Virtual Service**: an Istio VirtualService, which handles routing of requests towards Services
 - **Policy**: an automated process that periodically performs actions over an entity. Currently only used for Gateways. For more details refer to the [Performing a canary release](#performing-a-canary-release) section. 
-- **Experiment**: an automated processmanaging several resources involved in A/B testing a specific Service.
+- **Experiment**: an automated process managing several resources involved in A/B testing a specific Service.
 
 ## Performing a canary release
 
@@ -179,11 +179,13 @@ In order to perform a canary release you need to have an Application with at lea
 Before you can create an Application, you need to set up a Virtual Cluster, or add the correct labels to an existing namespace.
 
 ### Creating a Virtual Cluster
+
 In this section we guide you through the creation of a new Virtual Cluster, but you should be able to use these steps as a basis for updating a pre-existing namespace.
 
 Lamia looks for some specific labels when detecting namespaces to be imported as Virtual Clusters.
 
 These labels are:
+
 - **vamp-managed**: this label indicates that Lamia should import and manage resources from this namespace. They are imported into a Virtual Cluster with the same name.
 - **istio-injection**: this label indicates to Istio that it should perform automatic sidecar injection on the deployments in this namespace. 
 - **cluster**: (optional) this is the name of the Cluster to which the Virtual Cluster belongs. Lamia creates this label will be automatically if it is missing.
@@ -218,6 +220,7 @@ You can then click on List Virtual Cluster and see it as shown below.
 You can now edit the metadata of the Virtual Cluster.
 
 For example, you can associate a Slack channel with a Virtual Cluster by adding the following keys:
+
 - **slack_webhook**: a valid webhook
 - **slack_channel**: the name of the channel you want to use. The default is `#vamp-notifications`
 
@@ -229,6 +232,7 @@ This will allow Lamia to send notifications to the specified Slack channel.
 Once the Virtual Cluster is set up, you need to sure that the Deployments for your Application are created and running.
 
 All deployments require a set of three labels:
+
 - **app**: identifies the Application to which the Deployment belongs.
 - **deployment**: identifies the Deployment itself. This is used as a selector for the pods.
 - **version**: the version of the Application to which the Deployment belongs. This is used by Istio to dispatch traffic.
@@ -364,7 +368,7 @@ kubectl get deploy -n=vamp-tutorial
 
 Once you have your Application running, you can create a Service and a Gateway to expose the Application.
 
-To do this using the UI, start by making sure that you have selected the Virtual Cluster and the Application and the application that you want to expose.
+To do this using the UI, start by making sure that you have selected the Virtual Cluster and the Application that you want to expose.
 
 Now open the Service tab, click Create Service and enter the following data, as shown in the screenshot below.
 
@@ -422,7 +426,7 @@ If the external IP address is `1.2.3.4` then you can access the service using th
 http://1.2.3.4
 ````
 
-Mind the fact that this link will currently be the same for every Gateway you create, since it referes to an Istio controlled load blanced service which is used by all Gateways to expose services.
+Mind the fact that this link will currently be the same for every Gateway you create, since it referes to an Istio controlled load balanced service which is used by all Gateways to expose services.
 By clicking on the url you will notice that the Service is still not reachable. 
 The reason for that is that, unlike a Kuebrnetes Ingress, Istio Gateways need a Virtual Service bound to them in order to work properly.
 Don't worry though, we will get to that soon.
@@ -430,7 +434,7 @@ First of all, however, you need to setup a Destination Rule for you Service.
 
 ### Creating a Destination Rule
 
-A Destination Rule is an Istio resource that abstracts from the set of labels defined on the Deployments underlying a Service, by defining one or more Subsets.
+A Destination Rule is a Istio resource that abstracts from the set of labels defined on the Deployments underlying a Service, by defining one or more Subsets.
 Subsets are then referenced by Virtual Services in order to route traffic through the Service.
 You can create a new Destination Rule through Lamia by selecting Create DestinationRule and filling the presented form as shown below:
 
@@ -469,7 +473,7 @@ You can check the configuration of this Virtual Service using the UI by opening 
 
 This configuration tells Istio to distribute traffic equally (50%/50%) among the two versions.
 
-This is the same behaviour as the Service, so you won't be able to see any difference in behaviour until you start experimenting with different weights.
+This is the same behaviour you would have with just the Service, so you won't be able to see any difference until you start experimenting with different weights.
 
 **Keep in mind that the weights should always add up to 100, otherwise the configuration will not be applied.**
 
@@ -485,16 +489,15 @@ Adding this Gateway enables the Virtual Service to be exposed internally.
 ### Adding Routing Conditions
 
 Let's try now adding more complex conditions to regulate the traffic on the Service.
-Inorder to do that you will  have to edit the Virtual Service configuration you just created.
+In order to do that you will have to edit the Virtual Service configuration you just created.
 Select List Virtual Service and click on edit.
-Now specify the following condition:
+Now specify the following condition and hit submit.
 
 ````
 header "User-Agent" regex "^.*(Chrome).*$"  or header "User-Agent" regex "^.*(Nexus 6P).*$"
 ````
 
-and hit submit.
-This will tell the virtual service to let into the service only the requests with a user agent containing either "Chrome" or "Nexus 6P".
+This will tell the Virtual Service to let into the Service only the requests with a user agent containing either "Chrome" or "Nexus 6P".
 You can easily test this from a browser or with any tool that allows you to send http requests towards your service.
 You can now check what happened on kubernetes by running again the command:
 
@@ -505,7 +508,7 @@ kubectl get virtualservice vamp-tutorial-virtual-service -n vamp-tutorial -o yam
 You might also find yourself in a situation in which you want to specify different weights for each condtion.
 In order to do that, click on the add button and you will be able to configure a new route with its own condition and set of weights.
 It is also important to note that this allows for the selection of different destinations, effectively granting the ability to direct traffic towards multiple Services.
-Fot those that dealt with Istio before or that tried the previous version of Lamia, this is a big change compare to Route Rules.
+Fot those that dealt with Istio before or that tried the previous version of Vamp Lamia, this is a big change compared to Route Rules.
 In the route you added you can now specify the following condition:
 
 ````
@@ -517,29 +520,29 @@ The virtual service configuration will then look like the one shown below.
 
 ![](images/screen15.png)
 
-By doing this you will have all requests with User-Agent containing "Chrome" or "Nexus 6P" equally split between version1 and subset2, while all other requests will be sent to subset1.
+By doing this you will have all requests with User-Agent containing "Chrome" or "Nexus 6P" equally split between subset1 and subset2, while all other requests will be sent to subset1.
 
 Let's now edit again the gateway and remove the conditions you just specified and the extra route, before moving on to the next step.
 
 ### Performing a Canary Release
 
 It's time to try something a bit more complex.
-Lamia Virtual Services allow users to specify Policies, i.e. automated processes than can alter the Virtual Service configuration over a period of time.
+Vamp Lamia allow users to specify Policies on Virtual Services, i.e. automated processes than can alter the Virtual Service configuration over a period of time.
 When specifying a new Policy of this kind there are several options, let's start with the simplest one.
 Select List Virtual Service - edit and specify the values shown below in the Policies section, then submit.
 
 ![](images/screen16.png)
 
-What you just did will trigger an automated process that will gradually shift the weights towards your target (version2 in this case).
+What you just did will trigger an automated process that will gradually shift the weights towards your target (subset2 in this case).
 You will periodically get notifications that show the updates being applied to the virtual service.
 As usual you will be able to check the weights status from the Virtual Service's detail.
-It is also possible to configure the weight change at each update. The default value is 10, but you can specify it by adding the "step" parameter wth the desired value.
+It is also possible to configure the weight change at each update. The default value is 10, but you can specify it by adding the "step" parameter with the desired value.
 
 This is, of course, a pretty limited example. Usually you would like to put some form of rule to decide which version should prevail.
 Lamia can also help you in that scenario.
 Go back to the edit screen, remove the policy and reset the weights to 50/50, then submit.
 
-Let's say for example you want to rerun the previous scenario, but checking the healthiness of the two versions before applying changes.
+Let's say for example you want to rerun the previous scenario, but checking the healthiness of the two subsets before applying changes.
 You can esaily achieve that by editing the Virtual Service as shown in the next image
 
 ![](images/screen17.png)
@@ -606,7 +609,7 @@ spec:
           timeoutSeconds: 20
 ````
 
-This will inject errors on 30% of the requests going towards deployment2 and, consequently, cause the Policy to shift weights towards version1, despite the fact that version2 is the declared target.
+This will inject errors on 30% of the requests going towards deployment2 and, consequently, cause the Policy to shift weights towards subset1, despite the fact that subset2 is the declared target.
 Obviously nothing will happen unless you actually send requests to the service.
 There's an easy way to do that thanks to the specific image we are using for this tutorial.
 Go to List Gateway and open the details for the Gateway you previously created and click the link to your Service and add /ui at the end to get to this ui.
@@ -614,11 +617,11 @@ Go to List Gateway and open the details for the Gateway you previously created a
 ![](images/screen18.png)
 
 Now just input the url to your service ( http://vamp-tutorial-service:9090 ) into the empty field and this will both trigger continuous requests towards the service and show the real distribution over the two deployments, including the errors (highlighted in red).
-This tool is not really part of Lamia, but it comes in handy to test the behaviour of Virtual Services and Istio.
+This tool is not really part of Vamp Lamia, but it comes in handy to test the behaviour of Virtual Services and Istio.
 
 ![](images/screen19.png)
 
-You can check the distribution of traffic both from the tool itself or by selecting Virtual Virtual Service List and clicking on metrics.
+You can check the distribution of traffic both from the tool itself or by selecting List Virtual Service and clicking on metrics.
 This will present you with the interface shown below.
 
 ![](images/screen20.png)
@@ -651,7 +654,7 @@ Some of the available metrics are:
 - **upstream_rq_total**
 
 This type of Policy, however, comes with a limitation: you can only specify one condition, that is "select the version with the best metric".
-What if you wanted to have more complex condition?
+What if you wanted to have more complex conditions?
 
 #### Custom canary release
 
@@ -679,7 +682,7 @@ kubectl replace -f deployments.yaml
 
 Experiments are a new feature introduced with Lamia 0.2.0.
 They allow to quickly set up virtual services for A/B testing of different versions.
-In order to test Experiments you can execute [demo-setup.sh](samples/experiment-demo/demo-setup.sh).
+In order to try out Experiments you can execute [demo-setup.sh](samples/experiment-demo/demo-setup.sh).
 If everything works correctly, this will produce the following output
 
 ````
@@ -689,9 +692,9 @@ deployment "deployment2" created
 ````
 
 At this point you will have a new namespace named vamp-demo containing two versions of a simple e-commerce, that wil be imported by Lamia into a single application.
-Now, before you can proceed with setting up the Experiment you will first have to create a Service a Destination Rule and a Gateway for the Experment to use.
+Now, before you can proceed with setting up the Experiment, you will first have to create a Service a Destination Rule and a Gateway for the Experment to use.
 Since you already did that in the previous steps of this tutorial, you should be able to go through it quickly by referring to the configurations shown below.
-**Mind the fact that before cretaing the new Gateway and Virtual Service you should delete the ones you created for the previous steps of the tutorial.
+**Mind the fact that before creating the new Gateway and Virtual Service you should delete the ones you created for the previous steps of the tutorial.
 Since we are keeping a very generic configuration, they might otherwise end up conflicting with each other.**
 
 ![](images/screen23.png)
@@ -709,21 +712,21 @@ To clarify a bit what is going to happen when you submit, let's first go through
 
 - **Service Name**: the name of the Service on which you want to run the A/B testing.
 - **Service Port**: the Service port to use.
-- **Gateway Name**: the Gatway through which the Service will be exposed.
+- **Gateway Name**: the Gateway through which the Service will be exposed.
 - **Period in minutes**: the time interval in minutes after which periodic updates to the configuration will happen.
-- **Step**: the amount by which route's weights will shift at each update.
-- **Tags**: at the moment tags are just descriptive values for a specific version of the service.
+- **Step**: the amount by which the route's weights will shift at each update.
+- **Tags**: a descriptive value for a specific version of the service.
 - **Subset**: the subset of the service.
 - **Target**: the url that we want the users to reach to consider the test a success.
 
-When the form has been correctly filled and submitted the experiment will first save its configuration and then create an Experiment managed Virtual Service with the same name.
+When the form has been correctly filled and submitted the Experiment will first save its configuration and then create a Virtual Service with the same name.
 By clicking on List Virtual Service you will be able to see this new Virtual Service and check its configuration, although you won't be able to change it or delete it directly.
 Below you can see how ths configuraiton should look:
 
 ![](images/screen27.png)
 
 We realise this configuration can feel rather obscure, so let's walk through it together.
-The Virtual Service defines three routes. The first two are easy to understand: they each lead to one of the deployed versions. The third one, instead, is evenly load balancing between two versions of a Cookie Server.
+The Virtual Service defines three routes. The first two are easy to understand: they each lead to one of the deployed versions. The third one is evenly load balancing between two versions of a Cookie Server.
 The purpose of this configuration is to direct new visitors towards the Cookie Server which will then set cookies identifying them as a specific user and assigning them to one of the configured subsets.
 Once this is done, the Cookie Server redirects the user back to the original url, sending him back through the Virtual Services. This time, however, having a Subset Cookie, one of the conditions set on the first two routes applies and the user is forwarded to a specific version of the landing page. This is seamless in browsers, so users don't experience any interruption, and adds a neglectable overhead, since it affect only one call per user .
 Thanks to our reliance on cookies, we are able to provide users with a consistent experience while continuing our test, meaning that subsequent requests coming from the same user in a short period of time will always go to the same version.
