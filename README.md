@@ -35,15 +35,15 @@ This Guide will help you set up Lamia on a kubernetes cluster.
 
 ### Installation steps
 
-git clone this repo or download [setup.zip](https://github.com/magneticio/vamp2setup/releases/download/pre0.0.1/setup.zip)
+git clone this repo or download [setup zip](https://github.com/magneticio/vamp2setup/archive/0.1.96.zip)
 
 ```
 git clone https://github.com/magneticio/vamp2setup.git
 ```
 or
 ```
-wget https://github.com/magneticio/vamp2setup/releases/download/pre0.0.1/setup.zip
-unzip setup.zip
+wget https://github.com/magneticio/vamp2setup/archive/0.1.96.zip
+unzip 0.1.96.zip
 ```
 
 Run:
@@ -493,13 +493,17 @@ In order to do that you will have to edit the Virtual Service configuration you 
 Select List Virtual Service and click on edit.
 Now specify the following condition and hit submit.
 
+Open the Gateway tab, click List Gateway, select the gateway and click on edit.
+
+Then add the following condition and hit submit:
+
 ````
 header "User-Agent" regex "^.*(Chrome).*$"  or header "User-Agent" regex "^.*(Nexus 6P).*$"
 ````
 
-This will tell the Virtual Service to let into the Service only the requests with a user agent containing either "Chrome" or "Nexus 6P".
-You can easily test this from a browser or with any tool that allows you to send http requests towards your service.
-You can now check what happened on kubernetes by running again the command:
+This will tell the Virtual Service to only pass requests to the Service when the `User-Agent` HTTP header contains either "Chrome" or "Nexus 6P".
+You can test the effect of this condition from a browser or with a tool like `cURL` that allows you to send HTTP requests towards your service.
+You can now check what happened on kubernetes by running the command:
 
 ````
 kubectl get virtualservice vamp-tutorial-virtual-service -n vamp-tutorial -o yaml
@@ -518,10 +522,11 @@ header "User-Agent" regex "^(?:(?!Chrome|Nexus 6P).)*$"
 You can then configure the route to forward all traffic towards subset1.
 The virtual service configuration will then look like the one shown below.
 
+
 ![](images/screen15.png)
 
-By doing this you will have all requests with User-Agent containing "Chrome" or "Nexus 6P" equally split between subset1 and subset2, while all other requests will be sent to subset1.
 
+The effect of adding this new route is that requests with a `User-Agent` HTTP header that contains either "Chrome" or "Nexus 6P" will be equally split between subset1 and subset2, while all other requests will be sent to subset1.
 Let's now edit again the gateway and remove the conditions you just specified and the extra route, before moving on to the next step.
 
 ### Performing a Canary Release
