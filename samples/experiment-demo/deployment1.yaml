@@ -1,0 +1,45 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: application
+    deployment: deployment1
+    version: version1
+  name: deployment1
+  namespace: vamp-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: application
+      deployment: deployment1
+      version: version1
+  template:
+    metadata:
+      labels:
+        app: application
+        deployment: deployment1
+        version: version1
+    spec:
+      containers:
+      - env:
+        - name: SHOP_VERSION
+          value: "1"
+        - name: GET_FEEDBACK
+          value: "no"
+        - name: VAMP_ELASTICSEARCH_URL
+          value: "http://es-service:9200"
+        image: magneticio/simpleservice:2.0.2
+        imagePullPolicy: IfNotPresent
+        name: deployment1-0
+        ports:
+        - containerPort: 9191
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30

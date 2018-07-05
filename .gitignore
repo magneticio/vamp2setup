@@ -8,3 +8,4 @@ target
 /RUNNING_PID
 *.iml
 temp/*
+/samples/temp
