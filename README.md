@@ -21,7 +21,8 @@ This Guide will help you set up Lamia on a kubernetes cluster.
          * [Performing a Canary Release](#performing-a-canary-release-1)
             * [Metric based canary release](#metric-based-canary-release)
             * [Custom canary release](#custom-canary-release)
-         * [Creating an Experiment](#creating-an-experiment)   
+         * [Creating an Experiment](#creating-an-experiment)
+      * [Advanced Networking](#advanced-networking)    
       * [API](#api)
 
 ## Installation
@@ -744,7 +745,7 @@ Besides the Virtual Service itself, the Experiment is also managing a set of oth
 
 All these resources are not visible in Lamia and will be automatically deleted when the Experiment is removed.
 
-### Advanced Networking
+## Advanced Networking
 
 To better showcase what Vamp Lamia and Istio can do, let's now try and setup an entire environment with multiple virtual clusters and deployments.
 The final goal of this example is shown in the image below.
