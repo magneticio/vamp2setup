@@ -1,0 +1,394 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    istio-injection: enabled
+    vamp-managed: "true"
+    cluster: default
+    project: default
+  name: vamp-test1
+spec:
+  finalizers:
+  - kubernetes
+status:
+  phase: Active
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: app1
+    version: version1
+  name: vamp-test-deployment1
+  namespace: vamp-test1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app1
+      deployment: vamp-test-deployment1
+      version: version1
+  template:
+    metadata:
+      labels:
+        app: app1
+        deployment: vamp-test-deployment1
+        version: version1
+    spec:
+      containers:
+      - env:
+        - name: SERVICE_NAME
+          value: app1-version1
+        image: magneticio/nodewebservice:2.0.13
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /health
+            port: 9090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 20
+        name: deployment1-0
+        ports:
+        - containerPort: 9090
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: 9090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 20
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: app1
+    version: version2
+  name: vamp-test-deployment2
+  namespace: vamp-test1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app1
+      deployment: vamp-test-deployment2
+      version: version2
+  template:
+    metadata:
+      labels:
+        app: app1
+        deployment: vamp-test-deployment2
+        version: version2
+    spec:
+      containers:
+      - env:
+        - name: SERVICE_NAME
+          value: app1-version2
+        image: magneticio/nodewebservice:2.0.13
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /health
+            port: 9090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 20
+        name: deployment2-0
+        ports:
+        - containerPort: 9090
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: 9090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 20
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: app1
+    version: version3
+  name: vamp-test-deployment3
+  namespace: vamp-test1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app1
+      deployment: vamp-test-deployment3
+      version: version3
+  template:
+    metadata:
+      labels:
+        app: app1
+        deployment: vamp-test-deployment3
+        version: version3
+    spec:
+      containers:
+      - env:
+        - name: SERVICE_NAME
+          value: app1-version3
+        image: magneticio/nodewebservice:2.0.13
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /health
+            port: 9090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 20
+        name: deployment3-0
+        ports:
+        - containerPort: 9090
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: 9090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 20
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    istio-injection: enabled
+    vamp-managed: "true"
+    cluster: default
+    project: default
+  name: vamp-test2
+spec:
+  finalizers:
+  - kubernetes
+status:
+  phase: Active
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: app2
+    version: version1
+  name: vamp-test-deployment1
+  namespace: vamp-test2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app2
+      deployment: vamp-test-deployment1
+      version: version1
+  template:
+    metadata:
+      labels:
+        app: app2
+        deployment: vamp-test-deployment1
+        version: version1
+    spec:
+      containers:
+      - env:
+        - name: SERVICE_NAME
+          value: app2-version1
+        image: magneticio/nodewebservice:2.0.13
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /health
+            port: 9090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 20
+        name: deployment1-0
+        ports:
+        - containerPort: 9090
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: 9090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 20
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: app2
+    version: version2
+  name: vamp-test-deployment2
+  namespace: vamp-test2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app2
+      deployment: vamp-test-deployment2
+      version: version2
+  template:
+    metadata:
+      labels:
+        app: app2
+        deployment: vamp-test-deployment2
+        version: version2
+    spec:
+      containers:
+      - env:
+        - name: SERVICE_NAME
+          value: app2-version2
+        image: magneticio/nodewebservice:2.0.13
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /health
+            port: 9090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 20
+        name: deployment2-0
+        ports:
+        - containerPort: 9090
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: 9090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 20
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: app2
+    version: version3
+  name: vamp-test-deployment3
+  namespace: vamp-test2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app2
+      deployment: vamp-test-deployment3
+      version: version3
+  template:
+    metadata:
+      labels:
+        app: app2
+        deployment: vamp-test-deployment3
+        version: version3
+    spec:
+      containers:
+      - env:
+        - name: SERVICE_NAME
+          value: app2-version3
+        image: magneticio/nodewebservice:2.0.13
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /health
+            port: 9090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 20
+        name: deployment3-0
+        ports:
+        - containerPort: 9090
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: 9090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 20
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    istio-injection: enabled
+    vamp-managed: "true"
+    cluster: default
+    project: default
+  name: vamp-test3
+spec:
+  finalizers:
+  - kubernetes
+status:
+  phase: Active
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: app4
+    version: version1
+  name: vamp-test-deployment1
+  namespace: vamp-test3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app4
+      deployment: vamp-test-deployment1
+      version: version1
+  template:
+    metadata:
+      labels:
+        app: app4
+        deployment: vamp-test-deployment1
+        version: version1
+    spec:
+      containers:
+      - env:
+        - name: SERVICE_NAME
+          value: app4-version1
+        image: magneticio/nodewebservice:2.0.13
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /health
+            port: 9090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 20
+        name: deployment1-0
+        ports:
+        - containerPort: 9090
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: 9090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 20
