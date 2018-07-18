@@ -808,7 +808,7 @@ Let's start with the easy stuff, that is creating the Service, Destination Rule 
 
 As you can see the setup is basically identical to what we did in Virtual Cluster vamp-test1. The only significant difference is that we need to use a new host name for the Gateway definition.
 Let's now get to the Virtual Service.
-The Virtual Service should dispacth requests starting with '/service1' to svc-1 and requests starting with '/service2' to svc-2. At the same time those url should be rewritten to a simple '/'. 
+The Virtual Service should dispatch requests starting with '/service1' to svc-1 and requests starting with '/service2' to svc-2. At the same time those url should be rewritten to a simple '/'. 
 If we were to skip this last step, the request would fail.
 In order to achieve all that, you need to define two conditional routes with the following conditions:
 
