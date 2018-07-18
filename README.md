@@ -428,8 +428,8 @@ The reason for that is that, unlike a Kuebrnetes Ingress, Istio Gateways need a 
 Don't worry though, we will get to that soon.
 Before continuing it's interesting to talk about what happened when the Gateway was created.
 Normally all vamp Gateways rely on a single load balanced service residing in the istio-system namespace and named istio-ingressgateway. 
-This means that, in most cases, you will create only one Gateway which will contain all host names you want to expose. 
-This is an acceptable solution in some circumstances, but can be an hinderance in more complex scenarios, for example in cases where multiple persons or teams need to be able to configure host names.
+This means that, in most cases, you will create only one Gateway which will contain all hostnames you want to expose. 
+This is an acceptable solution in some circumstances, but can be an hinderance in more complex scenarios, for example in cases where multiple persons or teams need to be able to configure hostnames.
 While Vamp Lamia supports this more centralized setup, it also allows for the creation of multiple Gateways, each with its individual IP.
 This is achieved by creating a new load balanced service and the underlying deployment in the istio-system every time a Gateway is created.
 It's time to move on now and allow access to the Service through a new Virtual Service.
@@ -774,29 +774,29 @@ First of all let's select Application app1 and create a Service and Destination 
 
 ![](images/screen31.png)
 
-Now you can set up a Gateway to expose the Service you just created to the outside. For this example to work properly you need to define host names for the gateways you are going to create.
-So, choose two host names and specify them in the Gateway configuration as shown below.
+Now you can set up a Gateway to expose the Service you just created to the outside. For this example to work properly you need to define hostnames for the gateways you are going to create.
+So, choose two hostnames and specify them in the Gateway configuration as shown below.
 
 ![](images/screen32.png)
 
 Note that what you just did is not enough to map the specified names to the Gateway's ip. You will have to take care of that manually by using either Google DNS or any other online service like, for example, name.com or DNSDynamic.
 Now that the Gateway is setup you need only to create a Virtual Service in order to finally access the Service.
 To do that, use the following configuration. 
-**Take care to specify one of the host names you defined in the Gateway and not the one used in the example.**
+**Take care to specify one of the hostnames you defined in the Gateway and not the one used in the example.**
 
 ![](images/screen33.png)
 
-Shortly after submitting you will be able to access the Service using the host name you used in the Virtual Service specification.
-Let's map also the other host name, using a second Virtual Service.
+Shortly after submitting you will be able to access the Service using the hostname you used in the Virtual Service specification.
+Let's map also the other hostname, using a second Virtual Service.
 
 ![](images/screen34.png)
 
-Now, if you try calling the second host name you will be sent to subset2 in the Service you created.
-At this point in the tutorial you succesfully mapped two host names to two separate subsets of a Service and are able to send requests to them from outside the Cluster.
+Now, if you try calling the second hostname you will be sent to subset2 in the Service you created.
+At this point in the tutorial you succesfully mapped two hostnames to two separate subsets of a Service and are able to send requests to them from outside the Cluster.
 
 Having done that, let's try something else.
 Go back to List Virtual Cluster and select vamp-test2, then select Application app2 from List Application.
-This time you are going to create a single Virtual Service that will respond to a single host name to the outside world and that will dispatch requests to either Service svc-1 or a new Service.
+This time you are going to create a single Virtual Service that will respond to a single hostname to the outside world and that will dispatch requests to either Service svc-1 or a new Service.
 Dispatching of the requests will be regulated by the url invoked and the url itself will be rewritten before making the actual call to the Service itself.
 Let's start with the easy stuff, that is creating the Service, Destination Rule and Gateway.
 
@@ -806,7 +806,7 @@ Let's start with the easy stuff, that is creating the Service, Destination Rule 
 
 ![](images/screen37.png)
 
-As you can see the setup is basically identical to what we did in Virtual Cluster vamp-test1. The only significant difference is that we need to use a new host name for the Gateway definition.
+As you can see the setup is basically identical to what we did in Virtual Cluster vamp-test1. The only significant difference is that we need to use a new hostname for the Gateway definition.
 Let's now get to the Virtual Service.
 The Virtual Service should dispatch requests starting with '/service1' to svc-1 and requests starting with '/service2' to svc-2. At the same time those url should be rewritten to a simple '/'. 
 If we were to skip this last step, the request would fail.
@@ -826,7 +826,7 @@ For reference you can find the full configuration below.
 
 ![](images/screen38.png)
 
-If you try now to send requests to the specified host name with the appropriate url you will be redirected to the correct Service.
+If you try now to send requests to the specified hostname with the appropriate url you will be redirected to the correct Service.
 Our work with vamp-test2 is finished, let's now focus on the last Virtual Cluster: vamp-test3.
 In this Virtual Cluster, as shown in the initial graph, we want to allow access to Virtual Service vs-3 through Gateway gw-2 from outside the Cluster.
 **Note that this last example can be set up even on an entirely different cluster from which the original Cluster can be reached. We are limiting ourselves to use a Virtual Clutser for simplicty sake.
@@ -843,7 +843,7 @@ By using kubectl to log into one of the pods running into the vamp-test3 namespa
 curl vamp-gw2-test.democluster.net
 ````
 
-where vamp-gw2-test.democluster.net should be replaced by the host name you defined previously.
+where vamp-gw2-test.democluster.net should be replaced by the hostname you defined previously.
 Thanks to the Service Entry you can now also add a Virtual Service definition that references the external service and use it to define timeouts or retry policies as shown in the following image.
 
 ![](images/screen40.png)
