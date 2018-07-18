@@ -381,9 +381,7 @@ Now open the Service tab, click Create Service and enter the following data, as 
 ![](images/screen5.png)
 
 Then click Submit, to create the Service.
-
 If there were no errors, a Service named `vamp-tutorial-service` will be accessible internally to the Cluster.
-
 You can check the status of this Service using the UI by opening the Service tab, clicking on List Service and selecting `vamp-tutorial-service`.
 
 ![](images/screen6.png)
@@ -399,15 +397,12 @@ kubectl get svc vamp-tutorial-service -n vamp-tutorial
 ````
 
 Now it's time to expose the Service externally by creating an Gateway.
-
 Open the Gateway tab, click Create Gateway and enter the following data, as shown in the screenshot below.
 
 ![](images/screen8.png)
 
 Then click Submit, to create the Gateway.
-
 If there were no errors, the `vamp-tutorial-service` will now be available externally.
-
 To find the external IP address the `vamp-tutorial-gateway` is using, open the Gateway tab and click on List Gateway.
 
 ![](images/screen9.png)
@@ -423,15 +418,22 @@ kubectl get gateway vamp-tutorial-gateway -n vamp-tutorial
 ````
 
 If the external IP address is `1.2.3.4` then you can access the service using the following URL:
+
 ````
 http://1.2.3.4
 ````
 
-Mind the fact that this link will currently be the same for every Gateway you create, since it referes to an Istio controlled load balanced service which is used by all Gateways to expose services.
 By clicking on the url you will notice that the Service is still not reachable. 
 The reason for that is that, unlike a Kuebrnetes Ingress, Istio Gateways need a Virtual Service bound to them in order to work properly.
 Don't worry though, we will get to that soon.
-First of all, however, you need to setup a Destination Rule for you Service.
+Before continuing it's interesting to talk about what happened when the Gateway was created.
+Normally all vamp Gateways rely on a single load balanced service residing in the istio-system namespace and named istio-ingressgateway. 
+This means that, in most cases, you will create only one Gateway which will contain all host names you want to expose. 
+This is an acceptable solution in some circumstances, but can be an hinderance in more complex scenarios, for example in cases where multiple persons or teams need to be able to configure host names.
+While Vamp Lamia supports this more centralized setup, it also allows for the creation of multiple Gateways, each with its individual IP.
+This is achieved by creating a new load balanced service and the underlying deployment in the istio-system every time a Gateway is created.
+It's time to move on now and allow access to the Service through a new Virtual Service.
+First of all, however, you need to setup a Destination Rule.
 
 ### Creating a Destination Rule
 
