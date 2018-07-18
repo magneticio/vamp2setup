@@ -21,7 +21,8 @@ This Guide will help you set up Lamia on a kubernetes cluster.
          * [Performing a Canary Release](#performing-a-canary-release-1)
             * [Metric based canary release](#metric-based-canary-release)
             * [Custom canary release](#custom-canary-release)
-         * [Creating an Experiment](#creating-an-experiment)   
+         * [Creating an Experiment](#creating-an-experiment)
+      * [Advanced Networking](#advanced-networking)    
       * [API](#api)
 
 ## Installation
@@ -380,9 +381,7 @@ Now open the Service tab, click Create Service and enter the following data, as 
 ![](images/screen5.png)
 
 Then click Submit, to create the Service.
-
 If there were no errors, a Service named `vamp-tutorial-service` will be accessible internally to the Cluster.
-
 You can check the status of this Service using the UI by opening the Service tab, clicking on List Service and selecting `vamp-tutorial-service`.
 
 ![](images/screen6.png)
@@ -398,15 +397,12 @@ kubectl get svc vamp-tutorial-service -n vamp-tutorial
 ````
 
 Now it's time to expose the Service externally by creating an Gateway.
-
 Open the Gateway tab, click Create Gateway and enter the following data, as shown in the screenshot below.
 
 ![](images/screen8.png)
 
 Then click Submit, to create the Gateway.
-
 If there were no errors, the `vamp-tutorial-service` will now be available externally.
-
 To find the external IP address the `vamp-tutorial-gateway` is using, open the Gateway tab and click on List Gateway.
 
 ![](images/screen9.png)
@@ -422,15 +418,22 @@ kubectl get gateway vamp-tutorial-gateway -n vamp-tutorial
 ````
 
 If the external IP address is `1.2.3.4` then you can access the service using the following URL:
+
 ````
 http://1.2.3.4
 ````
 
-Mind the fact that this link will currently be the same for every Gateway you create, since it referes to an Istio controlled load balanced service which is used by all Gateways to expose services.
 By clicking on the url you will notice that the Service is still not reachable. 
 The reason for that is that, unlike a Kuebrnetes Ingress, Istio Gateways need a Virtual Service bound to them in order to work properly.
 Don't worry though, we will get to that soon.
-First of all, however, you need to setup a Destination Rule for you Service.
+Before continuing it's interesting to talk about what happened when the Gateway was created.
+Normally all vamp Gateways rely on a single load balanced service residing in the istio-system namespace and named istio-ingressgateway. 
+This means that, in most cases, you will create only one Gateway which will contain all hostnames you want to expose. 
+This is an acceptable solution in some circumstances, but can be an hinderance in more complex scenarios, for example in cases where multiple persons or teams need to be able to configure hostnames.
+While Vamp Lamia supports this more centralized setup, it also allows for the creation of multiple Gateways, each with its individual IP.
+This is achieved by creating a new load balanced service and the underlying deployment in the istio-system every time a Gateway is created.
+It's time to move on now and allow access to the Service through a new Virtual Service.
+First of all, however, you need to setup a Destination Rule.
 
 ### Creating a Destination Rule
 
@@ -699,8 +702,6 @@ deployment "deployment2" created
 At this point you will have a new namespace named vamp-demo containing two versions of a simple e-commerce, that wil be imported by Lamia into a single application.
 Now, before you can proceed with setting up the Experiment, you will first have to create a Service a Destination Rule and a Gateway for the Experment to use.
 Since you already did that in the previous steps of this tutorial, you should be able to go through it quickly by referring to the configurations shown below.
-**Mind the fact that before creating the new Gateway and Virtual Service you should delete the ones you created for the previous steps of the tutorial.
-Since we are keeping a very generic configuration, they might otherwise end up conflicting with each other.**
 
 ![](images/screen23.png)
 
@@ -745,6 +746,109 @@ Besides the Virtual Service itself, the Experiment is also managing a set of oth
 - a Destination Rule bound to the Cookie Servers' Service.
 
 All these resources are not visible in Lamia and will be automatically deleted when the Experiment is removed.
+
+## Advanced Networking
+
+To better showcase what Vamp Lamia and Istio can do, let's now try and setup an entire environment with multiple virtual clusters and deployments.
+The final goal of this example is shown in the image below.
+
+![](images/screen28.jpg)
+
+As you can see, at the end of this tutorial you will have three Virtual Clusters, each one with its own deployments and a different networking infrastructure.
+**Before continuing make sure to move to a new cluster or cleanup resources created in the previous steps of the tutorial, in order to avoid conflicts, especially on the Gateway level.**
+The first step is to set up the Virtual Clusters and Deployments and you can quickly do that by applying the [full-example-setup.yaml](samples/full-example-setup.yaml) with the command:
+
+````
+kubectl create -f full-example-setup.yaml
+````
+
+By logging into vamp you will now be presented with the following situation.
+
+![](images/screen29.png)
+
+As you can see the Virtual Clusters have all been imported and by selecting them you will be able to see the Applications and the Deployments they contain.
+Let's now focus on Virtual Cluster vamp-test1.
+First of all let's select Application app1 and create a Service and Destination Rule.
+
+![](images/screen30.png)
+
+![](images/screen31.png)
+
+Now you can set up a Gateway to expose the Service you just created to the outside. For this example to work properly you need to define hostnames for the gateways you are going to create.
+So, choose two hostnames and specify them in the Gateway configuration as shown below.
+
+![](images/screen32.png)
+
+Note that what you just did is not enough to map the specified names to the Gateway's ip. You will have to take care of that manually by using either Google DNS or any other online service like, for example, name.com or DNSDynamic.
+Now that the Gateway is setup you need only to create a Virtual Service in order to finally access the Service.
+To do that, use the following configuration. 
+**Take care to specify one of the hostnames you defined in the Gateway and not the one used in the example.**
+
+![](images/screen33.png)
+
+Shortly after submitting you will be able to access the Service using the hostname you used in the Virtual Service specification.
+Let's map also the other hostname, using a second Virtual Service.
+
+![](images/screen34.png)
+
+Now, if you try calling the second hostname you will be sent to subset2 in the Service you created.
+At this point in the tutorial you succesfully mapped two hostnames to two separate subsets of a Service and are able to send requests to them from outside the Cluster.
+
+Having done that, let's try something else.
+Go back to List Virtual Cluster and select vamp-test2, then select Application app2 from List Application.
+This time you are going to create a single Virtual Service that will respond to a single hostname to the outside world and that will dispatch requests to either Service svc-1 or a new Service.
+Dispatching of the requests will be regulated by the url invoked and the url itself will be rewritten before making the actual call to the Service itself.
+Let's start with the easy stuff, that is creating the Service, Destination Rule and Gateway.
+
+![](images/screen35.png)
+
+![](images/screen36.png)
+
+![](images/screen37.png)
+
+As you can see the setup is basically identical to what we did in Virtual Cluster vamp-test1. The only significant difference is that we need to use a new hostname for the Gateway definition.
+Let's now get to the Virtual Service.
+The Virtual Service should dispatch requests starting with '/service1' to svc-1 and requests starting with '/service2' to svc-2. At the same time those url should be rewritten to a simple '/'. 
+If we were to skip this last step, the request would fail.
+In order to achieve all that, you need to define two conditional routes with the following conditions:
+
+````
+uri prefix "/service1"
+````
+
+````
+uri prefix "/service2"
+````
+
+and also specify the value '/' in the rewrite field.
+Worthy of note is the fact that, since svc-1 resides in a different Virtual Cluster, we have to use its fully qualified name to be able to reach it, that is svc-1.vamp-test1.svc.cluster.local.
+For reference you can find the full configuration below.
+
+![](images/screen38.png)
+
+If you try now to send requests to the specified hostname with the appropriate url you will be redirected to the correct Service.
+Our work with vamp-test2 is finished, let's now focus on the last Virtual Cluster: vamp-test3.
+In this Virtual Cluster, as shown in the initial graph, we want to allow access to Virtual Service vs-3 through Gateway gw-2 from outside the Cluster.
+**Note that this last example can be set up even on an entirely different cluster from which the original Cluster can be reached. We are limiting ourselves to use a Virtual Clutser for simplicty sake.
+There Are however some real life scenarios in which you might actually want to do that, for example to take advantage of caching.**
+External services are normally not reachable from pods belonging to the Istio Mesh, hence we have to somehow make the host defined on Gateway gw-2 accessible. Service Entries are an Istio resource that can do just that.
+We are thus going to create one of them with this configuration.
+
+![](images/screen39.png)
+ 
+By using kubectl to log into one of the pods running into the vamp-test3 namespace you will now be able to send requests to Gateway gw-2 going outside the cluster, like this:
+
+
+````
+curl vamp-gw2-test.democluster.net
+````
+
+where vamp-gw2-test.democluster.net should be replaced by the hostname you defined previously.
+Thanks to the Service Entry you can now also add a Virtual Service definition that references the external service and use it to define timeouts or retry policies as shown in the following image.
+
+![](images/screen40.png)
+
+This concludes the tutorial, but feel free to keep on experimenting on the environment you just created; it makes for a good basis to try different setups and explore the available configuration options.
 
 ## API
 
