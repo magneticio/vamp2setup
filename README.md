@@ -750,7 +750,7 @@ All these resources are not visible in Lamia and will be automatically deleted w
 To better showcase what Vamp Lamia and Istio can do, let's now try and setup an entire environment with multiple virtual clusters and deployments.
 The final goal of this example is shown in the image below.
 
-![](images/screen28.png)
+![](images/screen28.jpg)
 
 As you can see, at the end of this tutorial you will have three Virtual Clusters, each with its own deployments and a different networking infrastructure.
 **Before continuing make sure to move to a new cluster or cleanup resources created in the previous steps of the tutorial, in order to avoid conflicts especially on the Gateway level.**
