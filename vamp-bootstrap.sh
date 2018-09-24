@@ -5,6 +5,38 @@ if ! type kubectl > /dev/null; then
     echo "kubectl is not installed"
     exit
 fi
+
+POSITIONAL=()
+EXTERNALDB=false
+DBURL="mongo-0.vamp-mongodb:27017,mongo-1.vamp-mongodb:27017,mongo-2.vamp-mongodb:27017"
+
+while [[ $# -gt 0 ]]
+do
+key="$1"
+
+case $key in
+    --externaldb)
+    EXTERNALDB=true
+    shift # past argument
+    ;;
+    --dburl)
+    DBURL="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    --dbname)
+    DBNAME="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    -u)
+    POSITIONAL+=("$1") # save it in an array for later
+    shift # past argument
+    ;;
+esac
+done
+set -- "${POSITIONAL[@]}" # restore positional parameters
+
 # Read Password
 echo "A password needed for the default user (root) to be used in the UI."
 echo "This password will be set as your root user password"
@@ -26,8 +58,21 @@ fi
 # sed with password
 encodedpassword=$(echo -n $password1 | base64)
 
+echo $DBURL
+echo $DBNAME
+
 mkdir temp
-sed 's/VAMP_ROOT_PASSWORD/'${encodedpassword}'/g' ./templates/vamp-in-cluster-template.yaml > ./temp/vamp-in-cluster.yaml
+sed -e 's/VAMP_ROOT_PASSWORD/'${encodedpassword}'/g' -e 's,VAMP_DB_URL,'${DBURL}',g'  -e 's,VAMP_DB_NAME,'${DBNAME}',g' ./templates/vamp-in-cluster-template.yaml > ./temp/vamp-in-cluster.yaml
+
+kubectl create -f ./templates/vamp-namespace-in-cluster.yaml
+
+if !($EXTERNALDB); then
+
+echo "Setting up database"
+
+kubectl create -f ./templates/vamp-db-in-cluster.yaml
+
+fi
 
 kubectl create -f ./temp/vamp-in-cluster.yaml
 
@@ -42,3 +87,6 @@ do
         break
     fi
 done
+
+
+
