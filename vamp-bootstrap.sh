@@ -6,7 +6,9 @@ if ! type kubectl > /dev/null; then
     exit
 fi
 
+VERSION="magneticio/vamp2:0.5.49-valce-SNAPSHOT"
 POSITIONAL=()
+OUTCLUSTER=false
 EXTERNALDB=false
 DBURL="mongo-0.vamp-mongodb:27017,mongo-1.vamp-mongodb:27017,mongo-2.vamp-mongodb:27017"
 
@@ -29,7 +31,11 @@ case $key in
     shift # past argument
     shift # past value
     ;;
-    -u)
+    --outcluster)
+    OUTCLUSTER=true
+    shift # past argument
+    ;;
+    *) # unknown option
     POSITIONAL+=("$1") # save it in an array for later
     shift # past argument
     ;;
@@ -61,32 +67,38 @@ encodedpassword=$(echo -n $password1 | base64)
 echo $DBURL
 echo $DBNAME
 
-mkdir temp
-sed -e 's/VAMP_ROOT_PASSWORD/'${encodedpassword}'/g' -e 's,VAMP_DB_URL,'${DBURL}',g'  -e 's,VAMP_DB_NAME,'${DBNAME}',g' ./templates/vamp-in-cluster-template.yaml > ./temp/vamp-in-cluster.yaml
+if !($OUTCLUSTER); then
 
-kubectl create -f ./templates/vamp-namespace-in-cluster.yaml
+    mkdir temp
+    sed -e 's,VAMP_VERSION,'${VERSION}',g' -e 's/VAMP_MODE/IN_CLUSTER/g' -e 's/VAMP_ROOT_PASSWORD/'${encodedpassword}'/g' -e 's,VAMP_DB_URL,'${DBURL}',g'  -e 's,VAMP_DB_NAME,'${DBNAME}',g' ./templates/vamp-in-cluster-template.yaml > ./temp/vamp-in-cluster.yaml
 
-if !($EXTERNALDB); then
+    kubectl create -f ./templates/vamp-namespace-in-cluster.yaml
 
-echo "Setting up database"
+    if !($EXTERNALDB); then
 
-kubectl create -f ./templates/vamp-db-in-cluster.yaml
+    echo "Setting up database"
+
+    kubectl create -f ./templates/vamp-db-in-cluster.yaml
+
+    fi
+
+    kubectl create -f ./temp/vamp-in-cluster.yaml
+
+    while true
+    do
+        echo "Waiting for ingress to be ready ..."
+        sleep 10
+        ip=$(kubectl describe svc vamp -n vamp-system | grep "LoadBalancer Ingress:" |  awk '{print $3}')
+        echo $ip
+        if [ $ip ]; then
+            echo "use http://$ip:8888/ui/#/login to connect"
+            break
+        fi
+    done
+
+else
+
+    docker run -d --rm --name=vamp -e MODE=OUTSIDE_CLUSTER -e HAZELCAST_SYNCH=false -e ROOT_PASSWORD=${password1} -e DBURL=${DBURL} -e DBNAME=${DBNAME} -p 8888:8888 $VERSION
 
 fi
-
-kubectl create -f ./temp/vamp-in-cluster.yaml
-
-while true
-do
-    echo "Waiting for ingress to be ready ..."
-    sleep 10
-    ip=$(kubectl describe svc vamp -n vamp-system | grep "LoadBalancer Ingress:" |  awk '{print $3}')
-    echo $ip
-    if [ $ip ]; then
-        echo "use http://$ip:8888/ui/#/login to connect"
-        break
-    fi
-done
-
-
 
