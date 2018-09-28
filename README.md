@@ -8,22 +8,32 @@ Lamia is a single Docker container that provides a REST API and React-based UI t
 
 This Guide will help you set up Lamia on a kubernetes cluster.
 
-## Table of contents
-
-   * [Prerequisites](#prerequisites)
-   * [installation steps](#installation-steps)
-      * [Istio Setup](#istio-setup)
-      * [Terminology](#terminology)
-      * [Performing a canary release](#performing-a-canary-release)
-         * [Requirements](#requirements)
-         * [Exposing your application](#exposing-your-application)
-         * [Creating a Gateway](#creating-a-gateway)
-         * [Performing a Canary Release](#performing-a-canary-release-1)
-            * [Metric based canary release](#metric-based-canary-release)
-            * [Custom canary release](#custom-canary-release)
-         * [Creating an Experiment](#creating-an-experiment)
-      * [Advanced Networking](#advanced-networking)    
-      * [API](#api)
+* [Installation](#installation)
+ * [Prerequisites](#prerequisites)
+ * [Installation steps](#installation-steps)
+    * [In cluster installation](#in-cluster-installation)
+       * [External database](#external-database)
+    * [Out of Cluster installation](#out-of-cluster-installation)
+* [Setting up a Project and Cluster](#setting-up-a-project-and-cluster)
+ * [Project Creation](#project-creation)
+ * [Cluster Creation](#cluster-creation)
+ * [Istio Setup](#istio-setup)
+* [Terminology](#terminology)
+* [Performing a canary release](#performing-a-canary-release)
+ * [Requirements](#requirements)
+ * [Creating a Virtual Cluster](#creating-a-virtual-cluster)
+ * [Creating an Application](#creating-an-application)
+ * [Exposing Your Application](#exposing-your-application)
+ * [Creating a Destination Rule](#creating-a-destination-rule)
+ * [Creating a Virtual Service](#creating-a-virtual-service)
+ * [Adding Routing Conditions](#adding-routing-conditions)
+ * [Performing a Canary Release](#performing-a-canary-release-1)
+    * [Metric based canary release](#metric-based-canary-release)
+    * [Custom canary release](#custom-canary-release)
+ * [Creating an Experiment](#creating-an-experiment)
+ * [Setting up a custom data source](#setting-up-a-custom-data-source)
+* [Advanced Networking](#advanced-networking)
+* [API](#api)
 
 ## Installation
 
@@ -36,7 +46,7 @@ This Guide will help you set up Lamia on a kubernetes cluster.
 
 ### Installation steps
 
-The first step is, of course, to git clone this repo or download [setup zip](https://github.com/magneticio/vamp2setup/archive/0.6.0.zip)
+The first step is, of course, to git clone this repo or download [setup zip](https://github.com/magneticio/vamp2setup/archive/0.6.1.zip)
 
 ```
 git clone https://github.com/magneticio/vamp2setup.git
@@ -49,7 +59,7 @@ unzip 0.1.96.zip
 
 After that you should decide whether you want to run vamp inside a cluster or outside of it.
 
-## In Cluster Installation
+#### In cluster installation
 
 Running Vamp Lamia inside a cluster is pretty straightforward and it just requires you to connect to the cluster via kubectl and run:
 
@@ -75,7 +85,7 @@ Copy the url and paste on your browser to login and start using.
 
 The default username is root.
 
-### External database
+##### External database
 
 Installing Vamp Lamia inside a cluster will also, by default, create a mongodb running inside the cluster, where all Vamp Lamia configurations will be stored.
 It is also possible to use an external mongodb. 
@@ -88,7 +98,7 @@ To achieve this run:
 Where someurl is your mongodb instance url and db-name is obviously the db name you want to use.
 Once installed inside the cluster Vamp Lamia will automatically create a 
 
-## Out of Cluster installation
+#### Out of Cluster installation
 
 If you'd rather have Vamp Lamia running outside the cluster, you can do that by running:
 
@@ -457,6 +467,9 @@ kubectl get svc vamp-tutorial-service -n vamp-tutorial
 ````
 
 Now it's time to expose the Service externally by creating an Gateway.
+The first thing you neec to do, however, is provide the cluster configuration with a google project id and service account to allow access to google dns.
+So go back to the Cluster list and select your cluster. Then, in the metadata, add two keys **google_service_account** and **google_project_id**, with the required values.
+This is not strictly necessary for this tutorial but, if you don't do it, you will keep on getting notifications warning you that that information is missing.
 Open the Gateway tab, click Create Gateway and enter the following data, as shown in the screenshot below.
 
 ![](images/screen8.png)
