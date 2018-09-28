@@ -1,0 +1,46 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: vamp-datasource-app
+    version: version1
+  name: vamp-datasource
+  namespace: vamp-test1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vamp-datasource-app
+      deployment: vamp-datasource
+      version: version1
+  template:
+    metadata:
+      labels:
+        app: vamp-datasource-app
+        deployment: vamp-datasource
+        version: version1
+    spec:
+      containers:
+      - image: magneticio/experiment-datasource:0.0.5
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /health
+            port: 9090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 20
+        name: deployment1-0
+        ports:
+        - containerPort: 9090
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: 9090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 20

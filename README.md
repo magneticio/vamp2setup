@@ -36,7 +36,7 @@ This Guide will help you set up Lamia on a kubernetes cluster.
 
 ### Installation steps
 
-git clone this repo or download [setup zip](https://github.com/magneticio/vamp2setup/archive/0.1.96.zip)
+The first step is, of course, to git clone this repo or download [setup zip](https://github.com/magneticio/vamp2setup/archive/0.6.0.zip)
 
 ```
 git clone https://github.com/magneticio/vamp2setup.git
@@ -47,7 +47,12 @@ wget https://github.com/magneticio/vamp2setup/archive/0.1.96.zip
 unzip 0.1.96.zip
 ```
 
-Run:
+After that you should decide whether you want to run vamp inside a cluster or outside of it.
+
+## In Cluster Installation
+
+Running Vamp Lamia inside a cluster is pretty straightforward and it just requires you to connect to the cluster via kubectl and run:
+
 ```
 ./vamp-bootstrap.sh
 ```
@@ -70,10 +75,65 @@ Copy the url and paste on your browser to login and start using.
 
 The default username is root.
 
+### External database
+
+Installing Vamp Lamia inside a cluster will also, by default, create a mongodb running inside the cluster, where all Vamp Lamia configurations will be stored.
+It is also possible to use an external mongodb. 
+To achieve this run:
+
+```
+./vamp-bootstrap.sh --externaldb --dburl mongodb://<someurl? --dbname <db-name>
+```
+
+Where <someurl> is your mongodb instance url and <db-name> is obviously the db name you want to use.
+Once installed inside the cluster Vamp Lamia will automatically create a 
+
+## Out of Cluster installation
+
+If you'd rather have Vamp Lamia running outside the cluster, you can do that by running:
+
+```
+./vamp-bootstrap.sh --outcluster  --dburl mongodb://<someurl? --dbname <db-name>
+```
+
+Where <someurl> is your mongodb instance url and <db-name> is obviously the db name you want to use.
+
+## Setting up a Project and Cluster
+
+If Lamia has been installed inside a Cluster it will automatically create a default Project and Cluster.
+If you are instead running Lamia outside a Cluster there are a few extra steps you need to take.
+
+### Project Creation
+
+First of all you need to create a Project.
+A Lamia Project is simply an abstraction grouping one of more Clusters.
+Youc an create a Project by clicking on Create Project and filling out the form below, which, at this time, requires only the Project's name to be specified.
+
+![](images/screen41.png)
+
+Once the Project has been created it will appear int he Project List and you will be able to select it.
+
+### Cluster Creation
+
+After setting up and selecting the new Project, it's time to do the same for the Cluster.
+This unfortunately still requires some manual operation.
+First of all you need to initialise the cluster by creating a namespace and Service Account that would grant Vamp Lamia the authorisations it requires to manage the Cluster itself, and then retrieve the Cluster url and the service account token and certificate.
+This may seem complex but you can just run 
+
+```
+./initialise-cluster.sh
+```
+
+and all the required operations will be performed, returning as an output the url, certificate and token.
+Once you have these values you can click on create Cluster in Vamp Lamia and fill out the form as shown below:
+
+![](images/screen42.png)
+
+Once you submit the Cluster will be imported in Lamia
 
 ### Istio Setup
 
-Once installed, Lamia will automatically check for Istio on the default cluster.
+Lamia will automatically check for Istio on each cluster it is connected to.
 Lamia expects to find the following resources inside the istio-system namesapce:
 
 **Deployments:**
@@ -746,6 +806,34 @@ Besides the Virtual Service itself, the Experiment is also managing a set of oth
 - a Destination Rule bound to the Cookie Servers' Service.
 
 All these resources are not visible in Lamia and will be automatically deleted when the Experiment is removed.
+
+### Setting up a custom data source
+
+The previous example relies on Elasticsearch in order to obtain the data required to shift the Virtual Service's configuration as desired.
+But what if one wanted to use some other data source or, rather, to use entirely different types of data?
+That is also achievable through Vamp Lamia thanks to its support for custom data sources.
+Vamp Lamia has been developed with the clear goal of making it as modular as possible. For that reason its architecture is based on the usage of Drivers, that is components that can be easily replaced for each of the entities that Vamp Lamia is managing. 
+In this specific case you would want to replace the Driver responsible for gathering metrics from Elasticsearch with another one that can interface with a custom data source.
+That can be very easily done, provided the data source meets some requirements. 
+For the sake of simplicity we are providing a simple nodejs webservice that will return random values at each requests.
+Everything that is required of this webservice is that it exposes a "/stats" endpoint that will respond to a request of the kind "/stats?subset=subset1" with the data pertaining to subset1 presented in json format. 
+You can see below an example of such a json.
+
+````
+{
+  average: 1.2,
+  standardDeviation: 0.8,
+  numberOfElements: 3875
+}
+````
+
+In this sample the number of elements is the number of users that got to the landing page of the service we are testing, while the average and standard deviation are calculated over the number of successful interactions of each user, i.e. the interactions that reached the specified target.
+If you run the [demo-setup.sh](samples/experiment-demo/demo-setup.sh) script in the previous step, then the mock data source will already be deployed and all you need to do is set up the Experiment using the following configuration
+
+![](images/screen43.png)
+
+Compared to the configuration used in the previous example the notable differences are that in this case you will be specifying a Data Source Path with value **screencapture-localhost-8888-ui-2018-09-28-11_26_25.png**, to tell Vamp to use the data source exposed by that Service, and you will also add a new metadata with key **complexmetricsdriver** and value **custom** in order to have Lamia use the custom implementation of the metrics driver. 
+Once the experiment has been set up, it will behave in the same way as the previous one, but using the newly defined data source.
 
 ## Advanced Networking
 

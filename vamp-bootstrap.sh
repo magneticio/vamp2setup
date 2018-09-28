@@ -100,5 +100,9 @@ else
 
     docker run -d --rm --name=vamp -e MODE=OUTSIDE_CLUSTER -e HAZELCAST_SYNCH=false -e ROOT_PASSWORD=${password1} -e DBURL=${DBURL} -e DBNAME=${DBNAME} -p 8888:8888 $VERSION
 
+    sleep 5
+
+    echo "http://localhost:8888/ui/#/login"
+
 fi
 
