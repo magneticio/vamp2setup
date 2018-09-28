@@ -1,30 +1,3 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: vamp-system
----
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: vamp-sa-cluster-admin-binding
-subjects:
-- kind: User
-  name: system:serviceaccount:vamp-system:default
-  apiGroup: rbac.authorization.k8s.io
-roleRef:
-  kind: ClusterRole
-  name: cluster-admin
-  apiGroup: rbac.authorization.k8s.io
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: vamp2imagepull
-  namespace: vamp-system
-type: kubernetes.io/dockercfg
-data:
-   .dockercfg: eyJodHRwczovL2luZGV4LmRvY2tlci5pby92MS8iOnsiYXV0aCI6ImRtRnRjREp3ZFd4c09uWmhiWEF5Y0hWc2JFWnNkWGc9In19
----
 kind: Service
 apiVersion: v1
 metadata:
@@ -37,67 +10,6 @@ spec:
  - protocol: TCP
    port: 5701
    targetPort: 5701
----
-apiVersion: v1
-kind: Service
-metadata:
- name: vamp-mongodb
- namespace: vamp-system
-spec:
- clusterIP: None
- selector:
-   app: vamp-mongodb
- ports:
- - port: 27017
-   targetPort: 27017
----
-apiVersion: apps/v1beta1
-kind: StatefulSet
-metadata:
-  namespace: vamp-system
-  name: mongo
-spec:
-  serviceName: vamp-mongodb
-  replicas: 3
-  template:
-    metadata:
-      labels:
-        app: vamp-mongodb
-    spec:
-      terminationGracePeriodSeconds: 10
-      containers:
-        - name: mongo
-          image: mongo
-          command:
-            - mongod
-            - "--replSet"
-            - rs0
-            - "--bind_ip"
-            - 0.0.0.0
-            - "--smallfiles"
-            - "--noprealloc"
-          ports:
-            - containerPort: 27017
-          volumeMounts:
-            - name: mongo-persistent-storage
-              mountPath: /data/db
-        - name: mongo-sidecar
-          image: cvallance/mongo-k8s-sidecar
-          env:
-            - name: MONGO_SIDECAR_POD_LABELS
-              value: "app=vamp-mongodb"
-            - name: KUBERNETES_MONGO_SERVICE_NAME
-              value: "vamp-mongodb"
-  volumeClaimTemplates:
-  - metadata:
-      name: mongo-persistent-storage
-      annotations:
-        volume.beta.kubernetes.io/storage-class: "standard"
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 1Gi
 ---
 apiVersion: v1
 kind: Secret
@@ -117,7 +29,7 @@ metadata:
   name: vamp
   namespace: vamp-system
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: vamp
@@ -131,13 +43,17 @@ spec:
       containers:
       - env:
         - name: MODE
-          value: "IN_CLUSTER"
+          value: VAMP_MODE
+        - name: DBURL
+          value: VAMP_DB_URL
+        - name: DBNAME
+          value: VAMP_DB_NAME
         - name: ROOT_PASSWORD
           valueFrom:
              secretKeyRef:
                 name: vamprootpassword
                 key: password
-        image: magneticio/vamp2:0.5.0
+        image: VAMP_VERSION
         imagePullPolicy: IfNotPresent
         name: vamp
         ports:
