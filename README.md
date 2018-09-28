@@ -467,6 +467,9 @@ kubectl get svc vamp-tutorial-service -n vamp-tutorial
 ````
 
 Now it's time to expose the Service externally by creating an Gateway.
+The first thing you neec to do, however, is provide the cluster configuration with a google project id and service account to allow access to google dns.
+So go back to the Cluster list and select your cluster. Then, in the metadata, add two keys **google_service_account** and **google_project_id**, with the required values.
+This is not strictly necessary for this tutorial but, if you don't do it, you will keep on getting notifications warning you that that information is missing.
 Open the Gateway tab, click Create Gateway and enter the following data, as shown in the screenshot below.
 
 ![](images/screen8.png)
