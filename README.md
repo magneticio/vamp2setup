@@ -82,10 +82,10 @@ It is also possible to use an external mongodb.
 To achieve this run:
 
 ```
-./vamp-bootstrap.sh --externaldb --dburl mongodb://<someurl? --dbname <db-name>
+./vamp-bootstrap.sh --externaldb --dburl mongodb://someurl --dbname db-name
 ```
 
-Where <someurl> is your mongodb instance url and <db-name> is obviously the db name you want to use.
+Where someurl is your mongodb instance url and db-name is obviously the db name you want to use.
 Once installed inside the cluster Vamp Lamia will automatically create a 
 
 ## Out of Cluster installation
@@ -93,10 +93,10 @@ Once installed inside the cluster Vamp Lamia will automatically create a
 If you'd rather have Vamp Lamia running outside the cluster, you can do that by running:
 
 ```
-./vamp-bootstrap.sh --outcluster  --dburl mongodb://<someurl? --dbname <db-name>
+./vamp-bootstrap.sh --outcluster  --dburl mongodb://someurl --dbname db-name
 ```
 
-Where <someurl> is your mongodb instance url and <db-name> is obviously the db name you want to use.
+Where someurl is your mongodb instance url and db-name is obviously the db name you want to use.
 
 ## Setting up a Project and Cluster
 
