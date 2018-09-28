@@ -6,7 +6,7 @@ if ! type kubectl > /dev/null; then
     exit
 fi
 
-VERSION="magneticio/vamp2:0.5.49-valce-SNAPSHOT"
+VERSION="magneticio/vamp2:0.6.0"
 POSITIONAL=()
 OUTCLUSTER=false
 EXTERNALDB=false
