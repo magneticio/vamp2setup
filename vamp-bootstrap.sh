@@ -10,7 +10,8 @@ VERSION="magneticio/vamp2:0.6.1"
 POSITIONAL=()
 OUTCLUSTER=false
 EXTERNALDB=false
-DBURL="mongo-0.vamp-mongodb:27017,mongo-1.vamp-mongodb:27017,mongo-2.vamp-mongodb:27017"
+DBURL="mongodb://mongo-0.vamp-mongodb:27017,mongo-1.vamp-mongodb:27017,mongo-2.vamp-mongodb:27017"
+DBNAME="vamp"
 
 while [[ $# -gt 0 ]]
 do
@@ -70,7 +71,7 @@ echo $DBNAME
 if !($OUTCLUSTER); then
 
     mkdir temp
-    sed -e 's,VAMP_VERSION,'${VERSION}',g' -e 's/VAMP_MODE/IN_CLUSTER/g' -e 's/VAMP_ROOT_PASSWORD/'${encodedpassword}'/g' -e 's,VAMP_DB_URL,'${DBURL}',g'  -e 's,VAMP_DB_NAME,'${DBNAME}',g' ./templates/vamp-in-cluster-template.yaml > ./temp/vamp-in-cluster.yaml
+    sed -e 's,VAMP_VERSION,'${VERSION}',g' -e 's/VAMP_MODE/IN_CLUSTER/g' -e 's/VAMP_ROOT_PASSWORD/'${encodedpassword}'/g' -e 's;VAMP_DB_URL;'${DBURL}';g'  -e 's,VAMP_DB_NAME,'${DBNAME}',g' ./templates/vamp-in-cluster-template.yaml > ./temp/vamp-in-cluster.yaml
 
     kubectl create -f ./templates/vamp-namespace-in-cluster.yaml
 
