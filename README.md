@@ -67,9 +67,9 @@ Running Vamp Lamia inside a cluster is pretty straightforward and it just requir
 ./vamp-bootstrap.sh
 ```
 
-Enter password when asked, password will not be visible and it will be asked twice.
+Enter a new password when asked and re-enter it for confirmation.
 
-Installer will tell you where to connect like:
+When the installation procedure is complete, the installer will tell you where to connect by printing an url similar to the one shown below:
 
 ```
 use http://111.222.333.444:8888/ui/#/login to connect
@@ -81,7 +81,7 @@ If you need to retrieve the IP afterwards you can do it via kubectl
 kubectl get svc vamp -n=vamp-system
 ```
 
-Copy the url and paste on your browser to login and start using.
+Copy the url and paste it on your browser to login and start using.
 
 The default username is root.
 
@@ -100,7 +100,7 @@ Once installed inside the cluster Vamp Lamia will automatically create a
 
 #### Out of Cluster installation
 
-If you'd rather have Vamp Lamia running outside the cluster, you can do that by running:
+If you'd rather have Vamp Lamia run outside the cluster, you should instead run:
 
 ```
 ./vamp-bootstrap.sh --outcluster  --dburl mongodb://someurl --dbname db-name
@@ -117,7 +117,7 @@ If you are instead running Lamia outside a Cluster there are a few extra steps y
 
 First of all you need to create a Project.
 A Lamia Project is simply an abstraction grouping one of more Clusters.
-Youc an create a Project by clicking on Create Project and filling out the form below, which, at this time, requires only the Project's name to be specified.
+You can create a Project by clicking on Create Project and filling out the form below, which, at this time, requires only the Project's name to be specified.
 
 ![](images/screen41.png)
 
@@ -238,8 +238,9 @@ Most of them overlap completely with Kubernetes or Istio entities, but some don'
 - **Gateway**: an Istio Gateway exposing an Application Service
 - **Destination Rule**: an Istio DestinationRule, which defines a subset of Deployments of one or several versions, based on common labels
 - **Virtual Service**: an Istio VirtualService, which handles routing of requests towards Services
+- **Vamp Service**: and abstraction that automatically sets up and manages a Service and its related Destination Rule and Virtual Service.
 - **Policy**: an automated process that periodically performs actions over an entity. Currently only used for Gateways. For more details refer to the [Performing a canary release](#performing-a-canary-release) section. 
-- **Experiment**: an automated process managing several resources involved in A/B testing a specific Service.
+- **Experiment**: an automated process managing several resources involved in A/B testing a specific Vamp Service.
 
 ## Performing a canary release
 
@@ -262,7 +263,7 @@ These labels are:
 - **cluster**: (optional) this is the name of the Cluster to which the Virtual Cluster belongs. Lamia creates this label will be automatically if it is missing.
 - **project**: (optional) this name of the Project to which the Virtual Cluster belongs. Lamia creates this label will be automatically if it is missing.
 
-Provided the first two labels are set, then once Lamia is deployed, it will import all the resources from a namespace into the current Project and Cluster and add the two optinal labels to the namespace if they are missing.
+Provided the first two labels are set, then, once Lamia is deployed, it will import all the resources from a namespace into the current Project and Cluster and add the two optinal labels to the namespace if they are missing.
 
 You can use the sample [namespace.yaml](samples/namespace.yaml) to create a Virtual Cluster called `vamp-tutorial`.
 
@@ -441,10 +442,11 @@ Once you have your Application running, you can create a Service and a Gateway t
 
 To do this using the UI, start by making sure that you have selected the Virtual Cluster and the Application that you want to expose.
 
-Now open the Service tab, click Create Service and enter the following data, as shown in the screenshot below.
+Now open the Service tab, click Others - Service - Create Service and enter the following data, as shown in the screenshot below.
 
-- **Service: Name**: the name of the service, use `vamp-tutorial-service` for the tutorial 
-- **Ports: Number**: the port on which the service will be exposed, use `9090` for the tutorial
+- **Name**: the name of the service, use `vamp-tutorial-service` for the tutorial 
+- **Selectors**: the selectors for the Service, corresponding to the kubernetes selectors. In this case it is referencing the app name 
+- **Ports: Number**: the port on which the Service will be exposed, use `9090` for the tutorial
 - **Ports: Target Port**: the port on which the container accepts traffic, use `9090` for the tutorial
 - **Ports: Protocol**: the network protocol the service uses, use `TCP` for the tutorial
 
@@ -559,8 +561,8 @@ You can also retrieve the virtual service using `kubectl` by running the followi
 kubectl get virtualservice vamp-tutorial-virtual-service -n vamp-tutorial
 ````
 
-You might have noticed that in the configuration, besides the Gateway you created, there's also another one, named mesh.
-Adding this Gateway enables the Virtual Service to be exposed internally.
+It is also possible to add an additional gateway called mesh to the Virtual Service configuration.
+Doing so enables the Virtual Service to be exposed internally, but mind the fact that it also requires you to provide a hostname, otherwise the Virtual Service creation will fail.
 
 ### Adding Routing Conditions
 
@@ -569,16 +571,12 @@ In order to do that you will have to edit the Virtual Service configuration you 
 Select List Virtual Service and click on edit.
 Now specify the following condition and hit submit.
 
-Open the Gateway tab, click List Gateway, select the gateway and click on edit.
-
-Then add the following condition and hit submit:
-
 ````
 header "User-Agent" regex "^.*(Chrome).*$"  or header "User-Agent" regex "^.*(Nexus 6P).*$"
 ````
 
 This will tell the Virtual Service to only pass requests to the Service when the `User-Agent` HTTP header contains either "Chrome" or "Nexus 6P".
-You can test the effect of this condition from a browser or with a tool like `cURL` that allows you to send HTTP requests towards your service.
+You can test the effect of this condition from a browser or with a tool like `cURL`.
 You can now check what happened on kubernetes by running the command:
 
 ````
@@ -589,7 +587,7 @@ You might also find yourself in a situation in which you want to specify differe
 In order to do that, click on the add button and you will be able to configure a new route with its own condition and set of weights.
 It is also important to note that this allows for the selection of different destinations, effectively granting the ability to direct traffic towards multiple Services.
 Fot those that dealt with Istio before or that tried the previous version of Vamp Lamia, this is a big change compared to Route Rules.
-In the route you added you can now specify the following condition:
+In the route you added, you can now specify the following condition:
 
 ````
 header "User-Agent" regex "^(?:(?!Chrome|Nexus 6P).)*$"
@@ -610,7 +608,7 @@ Let's now edit again the gateway and remove the conditions you just specified an
 It's time to try something a bit more complex.
 Vamp Lamia allow users to specify Policies on Virtual Services, i.e. automated processes than can alter the Virtual Service configuration over a period of time.
 When specifying a new Policy of this kind there are several options, let's start with the simplest one.
-Select List Virtual Service - edit and specify the values shown below in the Policies section, then submit.
+Select Others - Virtual Services - List Virtual Service - edit and specify the values shown below in the Policies section, then submit.
 
 ![](images/screen16.png)
 
@@ -759,10 +757,24 @@ You can now keep on experimenting with the Virtual Service, trying new things. K
 kubectl replace -f deployments.yaml
 ````
 
+### Vamp Services
+
+Setting up all of the above for every new service can be pretty tedious and time consuming. To solve this problem Vamp Lamia provides its users with the ability to create Vamp Services.
+Vamp Services are abstractions that group together a Service, a Destination Rule and a Virtual Service.
+To create a Vamp Service, select Vamp Service - Create Vamp Service from the menu and fill out the form as shown below.
+
+![](images/screen44.png)
+
+As you can see we are referencing app1 in the application and specifiying basically the same values we used in the Service, Virtual Service and Destination rule examples from the previous sections.
+Once you submit a new Service, Destination Rule and Virtual Service with the name vamp-service-1 will be created automatically.
+At this point you can add the new hostname defined in the Vamp Service specification to gateway gw-1 and you will be able to normally access the new Service.
+Note that currently Vamp Services do not support the policies we just shown for Virtual Services, although there are plans to implement them in the near future.
+On the other hand Vamp Services can use a much more powerful feature, that is Experiments.
+
 ### Creating an Experiment
 
 Experiments are a new feature introduced with Lamia 0.2.0.
-They allow to quickly set up virtual services for A/B testing of different versions.
+They allow to quickly set up A/B testing policies over different versions of the same service.
 In order to try out Experiments you can execute [demo-setup.sh](samples/experiment-demo/demo-setup.sh).
 If everything works correctly, this will produce the following output
 
@@ -772,15 +784,16 @@ deployment "deployment1" created
 deployment "deployment2" created
 ````
 
-At this point you will have a new namespace named vamp-demo containing two versions of a simple e-commerce, that wil be imported by Lamia into a single application.
-Now, before you can proceed with setting up the Experiment, you will first have to create a Service a Destination Rule and a Gateway for the Experment to use.
+At this point you will have a new namespace named vamp-demo containing two versions of a simple e-commerce, that wil be imported by Lamia into a single application named application.
+You will also notice a second application named vamp-datasource-app. It will be used in the next section, so you can ignore it for now.
+Now, before you can proceed with setting up the Experiment, you will first have to create a new Gateway and Vamp Service for the Experment to use.
 Since you already did that in the previous steps of this tutorial, you should be able to go through it quickly by referring to the configurations shown below.
+Just make sure to select the new Virtual Cluster vamp-demo before going onward.
+Also mind the fact that you should use a different hostname than the one we are using in the example.
 
 ![](images/screen23.png)
 
 ![](images/screen24.png)
-
-![](images/screen25.png)
 
 Once everything is ready you can set up the Experiment itself.
 Select Create Experiment and submit the following configuration.
@@ -789,17 +802,15 @@ Select Create Experiment and submit the following configuration.
 
 To clarify a bit what is going to happen when you submit, let's first go through the purpose of each field:
 
-- **Service Name**: the name of the Service on which you want to run the A/B testing.
-- **Service Port**: the Service port to use.
-- **Gateway Name**: the Gateway through which the Service will be exposed.
+- **Vamp Service Name**: the name of the Vamp Service on which you want to run the A/B testing.
 - **Period in minutes**: the time interval in minutes after which periodic updates to the configuration will happen.
 - **Step**: the amount by which the route's weights will shift at each update.
 - **Tags**: a descriptive value for a specific version of the service.
 - **Subset**: the subset of the service.
 - **Target**: the url that we want the users to reach to consider the test a success.
 
-When the form has been correctly filled and submitted the Experiment will first save its configuration and then create a Virtual Service with the same name.
-By clicking on List Virtual Service you will be able to see this new Virtual Service and check its configuration, although you won't be able to change it or delete it directly.
+When the form has been correctly filled and submitted the Experiment will first save its configuration and then update the related Vamp Service with a new configuration.
+By clicking on List Virtual Service and looking for the shop-vamp-service Virtual Service, you will be able to check its configuration, although you won't be able to change it or delete it directly.
 Below you can see how ths configuraiton should look:
 
 ![](images/screen27.png)
@@ -812,13 +823,8 @@ Thanks to our reliance on cookies, we are able to provide users with a consisten
 Depending on the test results, the policy defined on the Virtual Service will then move more users to more successful version, i.e. versions with a better ratio of users that reached the target over total number of users that reached the landing page.
 This is of course achieved by changing the weights of the Cookie Servers routes according to the Step value defined in the Experiment configuration.
 
-Besides the Virtual Service itself, the Experiment is also managing a set of other resources:
+Besides the Vamp Service itself, the Experiment is also managing one Cookie Server Deployment per Subset involved in the test.
 
-- one Cookie Server Deployment per Subset involved in the test.
-- a Service definition grouping the Cookie Servers.
-- a Destination Rule bound to the Cookie Servers' Service.
-
-All these resources are not visible in Lamia and will be automatically deleted when the Experiment is removed.
 
 ### Setting up a custom data source
 
@@ -845,7 +851,7 @@ If you run the [demo-setup.sh](samples/experiment-demo/demo-setup.sh) script in 
 
 ![](images/screen43.png)
 
-Compared to the configuration used in the previous example the notable differences are that in this case you will be specifying a Data Source Path with value **screencapture-localhost-8888-ui-2018-09-28-11_26_25.png**, to tell Vamp to use the data source exposed by that Service, and you will also add a new metadata with key **complexmetricsdriver** and value **custom** in order to have Lamia use the custom implementation of the metrics driver. 
+Compared to the configuration used in the previous example the notable differences are that in this case you will be specifying a Data Source Path with value **http://vamp-datasource.vamp-test1.svc.cluster.local:9090/stats**, to tell Vamp to use the data source exposed by that Service, and you will also add a new metadata with key **complexmetricsdriver** and value **custom** in order to have Lamia use the custom implementation of the metrics driver. 
 Once the experiment has been set up, it will behave in the same way as the previous one, but using the newly defined data source.
 
 ## Advanced Networking
@@ -869,7 +875,7 @@ By logging into vamp you will now be presented with the following situation.
 
 As you can see the Virtual Clusters have all been imported and by selecting them you will be able to see the Applications and the Deployments they contain.
 Let's now focus on Virtual Cluster vamp-test1.
-First of all let's select Application app1 and create a Service and Destination Rule.
+First of all let's create a new Service and Destination Rule for Application app1.
 
 ![](images/screen30.png)
 
@@ -896,7 +902,7 @@ Now, if you try calling the second hostname you will be sent to subset2 in the S
 At this point in the tutorial you succesfully mapped two hostnames to two separate subsets of a Service and are able to send requests to them from outside the Cluster.
 
 Having done that, let's try something else.
-Go back to List Virtual Cluster and select vamp-test2, then select Application app2 from List Application.
+Go back to List Virtual Cluster and select vamp-test2, as you can see we have an Application app2 running in this Virtual Cluster.
 This time you are going to create a single Virtual Service that will respond to a single hostname to the outside world and that will dispatch requests to either Service svc-1 or a new Service.
 Dispatching of the requests will be regulated by the url invoked and the url itself will be rewritten before making the actual call to the Service itself.
 Let's start with the easy stuff, that is creating the Service, Destination Rule and Gateway.
@@ -930,7 +936,7 @@ For reference you can find the full configuration below.
 If you try now to send requests to the specified hostname with the appropriate url you will be redirected to the correct Service.
 Our work with vamp-test2 is finished, let's now focus on the last Virtual Cluster: vamp-test3.
 In this Virtual Cluster, as shown in the initial graph, we want to allow access to Virtual Service vs-3 through Gateway gw-2 from outside the Cluster.
-**Note that this last example can be set up even on an entirely different cluster from which the original Cluster can be reached. We are limiting ourselves to use a Virtual Clutser for simplicty sake.
+**Note that this last example can be set up even on an entirely different cluster from which the original Cluster can be reached. We are limiting ourselves to use a Virtual Clutser for simplicty's sake.
 There Are however some real life scenarios in which you might actually want to do that, for example to take advantage of caching.**
 External services are normally not reachable from pods belonging to the Istio Mesh, hence we have to somehow make the host defined on Gateway gw-2 accessible. Service Entries are an Istio resource that can do just that.
 We are thus going to create one of them with this configuration.

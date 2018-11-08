@@ -5,7 +5,7 @@ metadata:
     app: vamp-datasource-app
     version: version1
   name: vamp-datasource
-  namespace: vamp-test1
+  namespace: vamp-demo
 spec:
   replicas: 1
   selector:
