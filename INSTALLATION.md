@@ -22,11 +22,6 @@ The first step is, of course, to git clone this repo or download [setup zip](htt
 ```
 git clone https://github.com/magneticio/vamp2setup.git
 ```
-or
-```
-wget https://github.com/magneticio/vamp2setup/archive/0.1.96.zip
-unzip 0.1.96.zip
-```
 
 After that you should decide whether you want to run vamp inside a cluster or outside of it.
 
