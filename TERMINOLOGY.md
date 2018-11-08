@@ -6,7 +6,7 @@ Most of them overlap completely with Kubernetes or Istio entities, but some don'
 - **Project**: a project is a grouping of clusters. This will automatically be created by Lamia.
 - **Cluster**: a cluster corresponds to a specific Kubernets clusters. Just like the Project, this will automatically be created by Lamia.
 - **Virtual Cluster**: a virtual cluster is a partition of a Cluster and is represented by a Namespace in Kubernetes.
-- **Application**: a grouping of related deployments
+- **Application**: a grouping of related deployments, defined by a shared label.
 - **Deployment**: a Kubernetes deployment which represents a specific version of an Application
 - **Service**: a Kubernetes service associated with all Deployments of a given Application
 - **Gateway**: an Istio Gateway exposing an Application Service
