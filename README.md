@@ -9,7 +9,7 @@ Lamia is a single Docker container that provides a REST API and React-based UI t
 To learn more about Vamp Lamia and what it can achieve you can check the following resources:
 
 * [Installation guidelines](INSTALLATION.md)
-* [Cluster setup](INSTALLATION.md)
+* [Cluster setup](SETUP.md)
 * [Terminology](TERMINOLOGY.md)
 * [Basic tutorial](BASIC_TUTORIAL.md)
 * [Advanced tutorial](ADVANCED_TUTORIAL.md)
