@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   labels:
     app: vamp-tutorial-app
-    version: version3
+    deployment: deployment3
   name: vamp-tutorial-deployment3
   namespace: vamp-tutorial
 spec:
@@ -11,19 +11,17 @@ spec:
   selector:
     matchLabels:
       app: vamp-tutorial-app
-      deployment: vamp-tutorial-deployment3
-      version: version3
+      deployment: deployment3
   template:
     metadata:
       labels:
         app: vamp-tutorial-app
-        deployment: vamp-tutorial-deployment3
-        version: version3
+        deployment: deployment3
     spec:
       containers:
       - env:
         - name: SERVICE_NAME
-          value: version3
+          value: deployment3
         image: magneticio/nodewebservice:2.0.11
         livenessProbe:
           failureThreshold: 5
