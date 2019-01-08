@@ -5,5 +5,5 @@ metadata:
     project: default
     cluster: default
     istio-injection: enabled
-    vamp-managed: "true"
+    vamp-managed: enabled
   name: vamp-tutorial

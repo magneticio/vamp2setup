@@ -3,7 +3,7 @@ kind: Namespace
 metadata:
   labels:
     istio-injection: enabled
-    vamp-managed: "true"
+    vamp-managed: enabled
     cluster: default
     project: default
   name: vamp-test1
@@ -162,7 +162,7 @@ kind: Namespace
 metadata:
   labels:
     istio-injection: enabled
-    vamp-managed: "true"
+    vamp-managed: enabled
     cluster: default
     project: default
   name: vamp-test2
@@ -321,7 +321,7 @@ kind: Namespace
 metadata:
   labels:
     istio-injection: enabled
-    vamp-managed: "true"
+    vamp-managed: enabled
     cluster: default
     project: default
   name: vamp-test3
