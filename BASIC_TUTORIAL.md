@@ -54,7 +54,7 @@ metadata:
     project: default
     cluster: default
     istio-injection: enabled
-    vamp-managed: "true"
+    vamp-managed: enabled
   name: vamp-tutorial
 ````
 
@@ -96,7 +96,7 @@ kind: Deployment
 metadata:
   labels:
     app: vamp-tutorial-app
-    version: version1
+    deployment: deployment1
   name: vamp-tutorial-deployment1
   namespace: vamp-tutorial
 spec:
@@ -104,14 +104,12 @@ spec:
   selector:
     matchLabels:
       app: vamp-tutorial-app
-      deployment: vamp-tutorial-deployment1
-      version: version1
+      deployment: deployment1
   template:
     metadata:
       labels:
         app: vamp-tutorial-app
-        deployment: vamp-tutorial-deployment1
-        version: version1
+        deployment: deployment1
     spec:
       containers:
       - env:
@@ -146,7 +144,7 @@ kind: Deployment
 metadata:
   labels:
     app: vamp-tutorial-app
-    version: version1
+    deployment: deployment
   name: vamp-tutorial-deployment2
   namespace: vamp-tutorial
 spec:
@@ -154,14 +152,12 @@ spec:
   selector:
     matchLabels:
       app: vamp-tutorial-app
-      deployment: vamp-tutorial-deployment2
-      version: version2
+      deployment: deployment2
   template:
     metadata:
       labels:
         app: vamp-tutorial-app
-        deployment: vamp-tutorial-deployment2
-        version: version2
+        deployment: deployment2
     spec:
       containers:
       - env:
@@ -414,7 +410,7 @@ kind: Deployment
 metadata:
   labels:
     app: vamp-tutorial-app
-    version: version2
+    deployment: deployment2
   name: vamp-tutorial-deployment2
   namespace: vamp-tutorial
 spec:
@@ -422,14 +418,12 @@ spec:
   selector:
     matchLabels:
       app: vamp-tutorial-app
-      deployment: vamp-tutorial-deployment2
-      version: version2
+      deployment: deployment2
   template:
     metadata:
       labels:
         app: vamp-tutorial-app
-        deployment: vamp-tutorial-deployment2
-        version: version2
+        deployment: deployment2
     spec:
       containers:
       - env:
