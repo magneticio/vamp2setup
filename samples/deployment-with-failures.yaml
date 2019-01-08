@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   labels:
     app: vamp-tutorial-app
-    deployment: deployment2
   name: vamp-tutorial-deployment2
   namespace: vamp-tutorial
 spec:

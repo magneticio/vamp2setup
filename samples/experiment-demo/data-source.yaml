@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   labels:
     app: vamp-datasource-app
-    deployment: deployment1
   name: vamp-datasource
   namespace: vamp-demo
 spec:
