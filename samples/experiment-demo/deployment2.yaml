@@ -4,7 +4,6 @@ metadata:
   labels:
     app: application
     deployment: deployment2
-    version: version2
   name: deployment2
   namespace: vamp-demo
 spec:
@@ -13,13 +12,11 @@ spec:
     matchLabels:
       app: application
       deployment: deployment2
-      version: version2
   template:
     metadata:
       labels:
         app: application
         deployment: deployment2
-        version: version2
     spec:
       containers:
       - env:

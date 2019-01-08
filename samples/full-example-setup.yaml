@@ -18,7 +18,7 @@ kind: Deployment
 metadata:
   labels:
     app: app1
-    version: version1
+    deployment: deployment1
   name: vamp-test-deployment1
   namespace: vamp-test1
 spec:
@@ -26,19 +26,17 @@ spec:
   selector:
     matchLabels:
       app: app1
-      deployment: vamp-test-deployment1
-      version: version1
+      deployment: deployment1
   template:
     metadata:
       labels:
         app: app1
-        deployment: vamp-test-deployment1
-        version: version1
+        deployment: deployment1
     spec:
       containers:
       - env:
         - name: SERVICE_NAME
-          value: app1-version1
+          value: app1-deployment1
         image: magneticio/nodewebservice:2.0.13
         livenessProbe:
           failureThreshold: 5
@@ -68,7 +66,7 @@ kind: Deployment
 metadata:
   labels:
     app: app1
-    version: version2
+    deployment: deployment2
   name: vamp-test-deployment2
   namespace: vamp-test1
 spec:
@@ -76,19 +74,17 @@ spec:
   selector:
     matchLabels:
       app: app1
-      deployment: vamp-test-deployment2
-      version: version2
+      deployment: deployment2
   template:
     metadata:
       labels:
         app: app1
-        deployment: vamp-test-deployment2
-        version: version2
+        deployment: deployment2
     spec:
       containers:
       - env:
         - name: SERVICE_NAME
-          value: app1-version2
+          value: app1-deployment2
         image: magneticio/nodewebservice:2.0.13
         livenessProbe:
           failureThreshold: 5
@@ -118,7 +114,7 @@ kind: Deployment
 metadata:
   labels:
     app: app1
-    version: version3
+    deployment: deployment3
   name: vamp-test-deployment3
   namespace: vamp-test1
 spec:
@@ -126,19 +122,17 @@ spec:
   selector:
     matchLabels:
       app: app1
-      deployment: vamp-test-deployment3
-      version: version3
+      deployment: deployment3
   template:
     metadata:
       labels:
         app: app1
-        deployment: vamp-test-deployment3
-        version: version3
+        deployment: deployment3
     spec:
       containers:
       - env:
         - name: SERVICE_NAME
-          value: app1-version3
+          value: app1-deployment3
         image: magneticio/nodewebservice:2.0.13
         livenessProbe:
           failureThreshold: 5
@@ -183,7 +177,7 @@ kind: Deployment
 metadata:
   labels:
     app: app2
-    version: version1
+    deployment: deployment1
   name: vamp-test-deployment1
   namespace: vamp-test2
 spec:
@@ -191,19 +185,17 @@ spec:
   selector:
     matchLabels:
       app: app2
-      deployment: vamp-test-deployment1
-      version: version1
+      deployment: deployment1
   template:
     metadata:
       labels:
         app: app2
-        deployment: vamp-test-deployment1
-        version: version1
+        deployment: deployment1
     spec:
       containers:
       - env:
         - name: SERVICE_NAME
-          value: app2-version1
+          value: app2-deployment1
         image: magneticio/nodewebservice:2.0.13
         livenessProbe:
           failureThreshold: 5
@@ -233,7 +225,7 @@ kind: Deployment
 metadata:
   labels:
     app: app2
-    version: version2
+    deployment: deployment2
   name: vamp-test-deployment2
   namespace: vamp-test2
 spec:
@@ -241,19 +233,17 @@ spec:
   selector:
     matchLabels:
       app: app2
-      deployment: vamp-test-deployment2
-      version: version2
+      deployment: deployment2
   template:
     metadata:
       labels:
         app: app2
-        deployment: vamp-test-deployment2
-        version: version2
+        deployment: deployment2
     spec:
       containers:
       - env:
         - name: SERVICE_NAME
-          value: app2-version2
+          value: app2-deployment2
         image: magneticio/nodewebservice:2.0.13
         livenessProbe:
           failureThreshold: 5
@@ -283,7 +273,7 @@ kind: Deployment
 metadata:
   labels:
     app: app2
-    version: version3
+    deployment: deployment3
   name: vamp-test-deployment3
   namespace: vamp-test2
 spec:
@@ -291,19 +281,17 @@ spec:
   selector:
     matchLabels:
       app: app2
-      deployment: vamp-test-deployment3
-      version: version3
+      deployment: deployment3
   template:
     metadata:
       labels:
         app: app2
-        deployment: vamp-test-deployment3
-        version: version3
+        deployment: deployment3
     spec:
       containers:
       - env:
         - name: SERVICE_NAME
-          value: app2-version3
+          value: app2-deployment3
         image: magneticio/nodewebservice:2.0.13
         livenessProbe:
           failureThreshold: 5
@@ -348,7 +336,7 @@ kind: Deployment
 metadata:
   labels:
     app: app4
-    version: version1
+    deployment: deployment1
   name: vamp-test-deployment1
   namespace: vamp-test3
 spec:
@@ -356,19 +344,17 @@ spec:
   selector:
     matchLabels:
       app: app4
-      deployment: vamp-test-deployment1
-      version: version1
+      deployment: deployment1
   template:
     metadata:
       labels:
         app: app4
-        deployment: vamp-test-deployment1
-        version: version1
+        deployment: deployment1
     spec:
       containers:
       - env:
         - name: SERVICE_NAME
-          value: app4-version1
+          value: app4-deployment1
         image: magneticio/nodewebservice:2.0.13
         livenessProbe:
           failureThreshold: 5
