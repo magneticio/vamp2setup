@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   labels:
     app: application
-    deployment: deployment1
   name: deployment1
   namespace: vamp-demo
 spec:
