@@ -1,3 +1,6 @@
+This repository is depreciated and updates will be done into the Vamp Kubist Repository:
+https://github.com/magneticio/vampkubistdocs
+
 # Vamp Lamia Alpha
 
 Lamia is a single Docker container that provides a REST API and React-based UI that you can use to:
